@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,12 +41,10 @@ public class RobotContainer {
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
     private final CommandXboxController operatorCtrl = new CommandXboxController(1);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final Intake intake = new Intake(20);
-    public final Cameras cameras = new Cameras(drivetrain);
-
-    //private final Intake intake;
+    private final Intake intake = new Intake(20);
+    private final Cameras cameras = new Cameras(drivetrain);
 
     public RobotContainer() {
         //intake = new Intake(5);
@@ -99,10 +98,10 @@ public class RobotContainer {
             drivetrain.sysIdQuasistatic(Direction.kReverse)
         );
 
-        driverCtrl.start().onTrue(sysIdCommandGroup);
+        //driverCtrl.start().onTrue(sysIdCommandGroup);
 
         // Reset the field-centric heading on left bumper press.
-        driverCtrl.pov(0).and(driverCtrl.start()).onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
         driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(12)));
         driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(-6)));
