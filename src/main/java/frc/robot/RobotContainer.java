@@ -7,10 +7,13 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -25,7 +28,7 @@ import frc.robot.subsystems.Intake;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(2).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private double SlowSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double SlowAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -46,10 +49,15 @@ public class RobotContainer {
     private final Intake intake = new Intake(20);
     private final Cameras cameras = new Cameras(drivetrain);
 
+    //Pathplanner
+    SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
         //intake = new Intake(5);
         configureBindings();
 
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auton Chooser", autoChooser);
     }
 
     private void configureBindings() {
@@ -103,28 +111,33 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
-        driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(12)));
-        driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(-6)));
+        driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
+        driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
-        // Simple drive forward auton
-        final var idle = new SwerveRequest.Idle();
-        return Commands.sequence(
-            // Reset our field centric heading to match the robot
-            // facing away from our alliance station wall (0 deg).
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-            // Then slowly drive forward (away from us) for 5 seconds.
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(0.5)
-                    .withVelocityY(0)
-                    .withRotationalRate(0)
-            )
-            .withTimeout(5.0),
-            // Finally idle for the rest of auton
-            drivetrain.applyRequest(() -> idle)
-        );
+    // public Command getAutonomousCommand() {
+    //     // Simple drive forward auton
+    //     final var idle = new SwerveRequest.Idle();
+    //     return Commands.sequence(
+    //         // Reset our field centric heading to match the robot
+    //         // facing away from our alliance station wall (0 deg).
+    //         drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
+    //         // Then slowly drive forward (away from us) for 5 seconds.
+    //         drivetrain.applyRequest(() ->
+    //             drive.withVelocityX(0.5)
+    //                 .withVelocityY(0)
+    //                 .withRotationalRate(0)
+    //         )
+    //         .withTimeout(5.0),
+    //         // Finally idle for the rest of auton
+    //         drivetrain.applyRequest(() -> idle)
+    //     );
+    // }
+
+    public Command getAutonomousCommand(){
+        return autoChooser.getSelected();
     }
 }
+
