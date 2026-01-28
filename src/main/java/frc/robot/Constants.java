@@ -25,5 +25,17 @@ public class Constants {
         new Rotation3d(0, Math.toRadians(-30), Math.toRadians(135))
     );
 
+    // Motor IDs
+    public static final int shooterMotorLID = 999;
+    public static final int shooterMotorRID = 999;
+    public static final int IntakeMotorID = 20;
+    public static final int IndexMotorLID = 999;
+
+
+    // Shooter Constants
+    public static final double ShooterShootingVelocity = 0;
+    public static final double IndexerShootingVelocity = 0;
+    public static final double ShooterChargeVelocity = 0;
+    public static final double IndexerChargeVelocity = 0;
 
 }
