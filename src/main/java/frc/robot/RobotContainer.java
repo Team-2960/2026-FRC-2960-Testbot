@@ -23,8 +23,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cameras;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-//import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -46,11 +47,24 @@ public class RobotContainer {
 
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final Intake intake = new Intake(20);
+    private final Intake intake = new Intake(Constants.IntakeMotorID);
+    private final Indexer indexer = new Indexer(Constants.IndexMotorID);
+    private final Shooter shooter = new Shooter(Constants.shooterMotorLID, Constants.shooterMotorRID);
     private final Cameras cameras = new Cameras(drivetrain);
 
     //Pathplanner
     SendableChooser<Command> autoChooser;
+
+    //Command Groups
+    private final Command shootCmd = Commands.parallel(
+        shooter.setVelocityCmd(Constants.ShooterShootingVelocity),
+        indexer.setVelocityCmd(Constants.IndexerShootingVelocity)
+    );
+
+    private final Command chargeCmd = Commands.parallel(
+        shooter.setVelocityCmd(Constants.ShooterChargeVelocity),
+        indexer.setVelocityCmd(Constants.IndexerChargeVelocity)
+    );
 
     public RobotContainer() {
         //intake = new Intake(5);
@@ -111,8 +125,8 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
-        driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
-        driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
+        driverCtrl.a().whileTrue(intake.getIntakeCmd(-1.0));
+        driverCtrl.b().whileTrue(intake.getIntakeCmd(1.0));
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -139,5 +153,7 @@ public class RobotContainer {
     public Command getAutonomousCommand(){
         return autoChooser.getSelected();
     }
+
+
 }
 

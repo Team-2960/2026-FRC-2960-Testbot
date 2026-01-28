@@ -29,7 +29,7 @@ public class Constants {
     public static final int shooterMotorLID = 999;
     public static final int shooterMotorRID = 999;
     public static final int IntakeMotorID = 20;
-    public static final int IndexMotorLID = 999;
+    public static final int IndexMotorID = 999;
 
 
     // Shooter Constants
