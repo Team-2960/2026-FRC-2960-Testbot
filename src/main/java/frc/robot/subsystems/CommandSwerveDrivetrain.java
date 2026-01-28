@@ -378,11 +378,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public SwerveRequest.FieldCentricFacingAngle getAngleRequest(Rotation2d targetAngle){
-        return setFieldCentricAngle.withTargetDirection(targetAngle);
+        return setFieldCentricAngle
+            .withTargetDirection(targetAngle)
+            .withHeadingPID(10, 0, 0);
     }
 
     public SwerveRequest.FieldCentricFacingAngle getLookAtPointRequest(Translation2d targetPoint){
-        return setFieldCenterLookAtPoint.withTargetPoint(targetPoint, () -> getPose2d());
+        return setFieldCenterLookAtPoint
+            .withTargetPoint(targetPoint, () -> getPose2d())
+            .withHeadingPID(10, 0, 0);
     }
 
 }

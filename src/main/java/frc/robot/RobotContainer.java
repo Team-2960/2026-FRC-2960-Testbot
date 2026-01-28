@@ -127,7 +127,9 @@ public class RobotContainer {
         // driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
         // driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
 
-        driverCtrl.leftBumper().onTrue(drivetrain.applyRequest(() -> drivetrain.getLookAtPointRequest(new Translation2d())));
+        driverCtrl.leftBumper().whileTrue(drivetrain.applyRequest(() -> drivetrain.getLookAtPointRequest(new Translation2d())
+            .withVelocityX(-driverCtrl.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverCtrl.getLeftX() * MaxSpeed)));
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
