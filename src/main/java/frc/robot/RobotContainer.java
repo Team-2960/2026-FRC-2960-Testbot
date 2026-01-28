@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -46,8 +48,10 @@ public class RobotContainer {
 
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final Intake intake = new Intake(20);
-    private final Cameras cameras = new Cameras(drivetrain);
+    //private final Intake intake = new Intake(20);
+    //private final Cameras cameras = new Cameras(drivetrain);
+
+    private Supplier<Command> currentCommand = () -> Commands.none();
 
     //Pathplanner
     SendableChooser<Command> autoChooser;
@@ -111,8 +115,8 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
-        driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
-        driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
+        // driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
+        // driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -137,6 +141,7 @@ public class RobotContainer {
     // }
 
     public Command getAutonomousCommand(){
+        SmartDashboard.putString("Current Command", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 }
