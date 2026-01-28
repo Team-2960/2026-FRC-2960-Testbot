@@ -6,12 +6,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -100,12 +103,6 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        //driverCtrl.leftBumper().whileTrue(intake.getIntakeCmd(Volts.of(6)));
-        // driverCtrl.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driverCtrl.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-driverCtrl.getLeftY(), -driverCtrl.getLeftX()))
-        // ));
-
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // driverCtrl.back().and(driverCtrl.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -127,30 +124,16 @@ public class RobotContainer {
 
         driverCtrl.a().whileTrue(intake.getIntakeCmd(-1.0));
         driverCtrl.b().whileTrue(intake.getIntakeCmd(1.0));
+        // driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
+        // driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
+
+        driverCtrl.leftBumper().onTrue(drivetrain.applyRequest(() -> drivetrain.getLookAtPointRequest(new Translation2d())));
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    // public Command getAutonomousCommand() {
-    //     // Simple drive forward auton
-    //     final var idle = new SwerveRequest.Idle();
-    //     return Commands.sequence(
-    //         // Reset our field centric heading to match the robot
-    //         // facing away from our alliance station wall (0 deg).
-    //         drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-    //         // Then slowly drive forward (away from us) for 5 seconds.
-    //         drivetrain.applyRequest(() ->
-    //             drive.withVelocityX(0.5)
-    //                 .withVelocityY(0)
-    //                 .withRotationalRate(0)
-    //         )
-    //         .withTimeout(5.0),
-    //         // Finally idle for the rest of auton
-    //         drivetrain.applyRequest(() -> idle)
-    //     );
-    // }
-
     public Command getAutonomousCommand(){
+        SmartDashboard.putString("Current Command", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 
