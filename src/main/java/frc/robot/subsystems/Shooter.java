@@ -11,12 +11,13 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.revrobotics.spark.SparkMax;
 
-
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,12 +25,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants;
+import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
     private final DutyCycleOut shooterVolts = new DutyCycleOut(0.0);
     private final VoltageOut sysIDVolt = new VoltageOut(0.0);
-    private final TalonFX shooterMotorL = new TalonFX(21, CANBus.roboRIO());
-    private final TalonFX shooterMotorR = new TalonFX(20, CANBus.roboRIO());
+    private final TalonFX shooterMotorL = new TalonFX(Constants.shooterMotorLID, CANBus.roboRIO());
+    private final TalonFX shooterMotorR = new TalonFX(Constants.shooterMotorRID, CANBus.roboRIO());
+    
+    final MotionMagicVelocityVoltage shooterMotorMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
 
     public Shooter(int shooterMotorLID, int shooterMotorRID) {
         var shooterMotorLConfig = new Slot0Configs();
@@ -41,7 +45,7 @@ public class Shooter extends SubsystemBase {
         shooterMotorLConfig.kA = 0.0;
 
         shooterMotorL.getConfigurator().apply(shooterMotorLConfig);
-        shooterMotorR.setControl(new Follower(shooterMotorRID, MotorAlignmentValue.Opposed));
+        shooterMotorR.setControl(new Follower(shooterMotorLID, MotorAlignmentValue.Opposed));
     }
 
     
@@ -49,10 +53,21 @@ public class Shooter extends SubsystemBase {
         shooterMotorL.setControl(shooterVolts.withOutput(output));
     }
 
+    public void setVelocity(double velocity){
+        shooterMotorL.setControl(shooterMotorMagicVelocityVoltage.withVelocity(velocity));
+    }
+
     public Command getShooterCmd(double input) {
         return this.runEnd(
            () -> setControl(input),
            () -> setControl(0.0)
+        );
+    }
+
+    public Command setVelocityCmd(double velocity) {
+        return this.runEnd(
+         () -> setVelocity(velocity),
+         () -> setVelocity(0.0)
         );
     }
 
@@ -80,8 +95,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Index RPM", shooterMotorR.getVelocity().getValue().in(Rotations.per(Minute)));
-        SmartDashboard.putNumber("Index RPM", shooterMotorL.getVelocity().getValue().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("ShooterRight RPM", shooterMotorR.getVelocity().getValue().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("ShooterLeft RPM", shooterMotorL.getVelocity().getValue().in(Rotations.per(Minute)));
     }
 }
 
