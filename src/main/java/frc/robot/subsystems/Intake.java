@@ -2,9 +2,12 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
@@ -15,7 +18,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 
-
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,12 +46,23 @@ public class Intake extends SubsystemBase {
         intakeMotor.getConfigurator().apply(intakeMotorConfig);
     }
 
+    
     public void setControl(double output){
         intakeMotor.setControl(intakeVolts.withOutput(output));
     }
 
-    public void setVelocity(double velocity){
+    public void setVelocity(AngularVelocity velocity){
         intakeMotor.setControl(intakeMotorMagicVelocityVoltage.withVelocity(velocity));
+    }
+
+    @AutoLogOutput
+    public Voltage getVoltage(){
+        return intakeMotor.getMotorVoltage().getValue();
+    }
+    
+    @AutoLogOutput
+    public AngularVelocity getVelocity(){
+        return intakeMotor.getVelocity().getValue();
     }
 
     public Command getIntakeCmd(double input) {
@@ -58,10 +72,10 @@ public class Intake extends SubsystemBase {
         );
     }
 
-    public Command setVelocityCmd(double velocity) {
+    public Command setVelocityCmd(AngularVelocity velocity) {
         return this.runEnd(
          () -> setVelocity(velocity),
-         () -> setVelocity(0.0)
+         () -> setVelocity(RotationsPerSecond.zero())
         );
     }
 
