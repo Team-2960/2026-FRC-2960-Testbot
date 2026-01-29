@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.*;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.Utils;
@@ -24,6 +26,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -373,16 +376,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-    public Pose2d getPose2d(){
-        return super.getState().Pose;
+    @AutoLogOutput
+    public Pose2d getPose2d(){  
+        return this.getState().Pose;
+    }
+
+    @AutoLogOutput
+    public SwerveModuleState[] getModuleStates(){
+        return getState().ModuleStates;
+    }
+
+    @AutoLogOutput
+    public ChassisSpeeds getChassisSpeeds(){
+        return getState().Speeds;
     }
 
     public SwerveRequest.FieldCentricFacingAngle getAngleRequest(Rotation2d targetAngle){
-        return setFieldCentricAngle.withTargetDirection(targetAngle);
+        return setFieldCentricAngle
+            .withTargetDirection(targetAngle)
+            .withHeadingPID(10, 0, 0);
     }
 
     public SwerveRequest.FieldCentricFacingAngle getLookAtPointRequest(Translation2d targetPoint){
-        return setFieldCenterLookAtPoint.withTargetPoint(targetPoint, () -> getPose2d());
+        return setFieldCenterLookAtPoint
+            .withTargetPoint(targetPoint, () -> getPose2d())
+            .withHeadingPID(10, 0, 0);
     }
 
 }

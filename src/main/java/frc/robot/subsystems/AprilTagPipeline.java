@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.List;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
@@ -32,6 +33,7 @@ public class AprilTagPipeline extends SubsystemBase {
     private final AprilTagPipelineSettings settings;
     /** < Pipeline Settings */
     private final PhotonCamera camera;
+    private final String cameraName;
     /** < Camera object */
     private final PhotonPoseEstimator pose_est;
     /** < Pose Estimator */
@@ -57,6 +59,7 @@ public class AprilTagPipeline extends SubsystemBase {
     private StructPublisher<Pose2d> as_estimatedCameraPose;
     private Pose3d[] aprilTagList;
     private AprilTagFields field;
+
     private Pose2d last_pose;  //Do NOT Use for any estimates
 
 
@@ -77,6 +80,7 @@ public class AprilTagPipeline extends SubsystemBase {
      * @param settings Pipeline settings
      */
     public AprilTagPipeline(CommandSwerveDrivetrain drive, AprilTagPipelineSettings settings, String cameraName, String name) {
+        this.cameraName = cameraName;
         this.drive = drive;
 
         this.settings = settings;
@@ -190,8 +194,14 @@ public class AprilTagPipeline extends SubsystemBase {
         }
     }
 
+    @AutoLogOutput (key = "Camera: {cameraName}")
     public Pose3d getRobotRelativeCamPos(){
         return new Pose3d(drive.getPose2d()).transformBy(settings.robot_to_camera);
+    }
+
+    @AutoLogOutput (key = "Camera: {cameraName}")
+    public Pose2d getLastPose(){
+        return last_pose;
     }
 
     /**
