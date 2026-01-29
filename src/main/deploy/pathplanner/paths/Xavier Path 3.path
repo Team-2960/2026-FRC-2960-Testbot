@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.0,
+        "y": 5.75
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.66739854665558,
+        "y": 5.636477551299287
+      },
+      "isLocked": false,
+      "linkedName": "XavierBump"
+    },
+    {
+      "anchor": {
+        "x": 2.972295454545454,
+        "y": 5.6325568181818175
+      },
+      "prevControl": {
+        "x": 4.575379121706504,
+        "y": 6.081583841991363
+      },
+      "nextControl": {
+        "x": 2.562669286537787,
+        "y": 5.517819688197377
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.4260340909090905,
+        "y": 4.560647727272727
+      },
+      "prevControl": {
+        "x": 2.2763820050223207,
+        "y": 4.360387263901299
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -12.557556216278853
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 135.0
+  },
+  "useDefaultConstraints": true
+}
