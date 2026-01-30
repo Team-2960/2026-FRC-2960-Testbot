@@ -9,7 +9,9 @@ import static edu.wpi.first.units.Units.*;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -51,26 +53,29 @@ public class RobotContainer {
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private final Intake intake = new Intake(Constants.IntakeMotorID);
-    private final Indexer indexer = new Indexer(Constants.IndexMotorID);
-    private final Shooter shooter = new Shooter(Constants.shooterMotorLID, Constants.shooterMotorRID);
+    //private final Indexer indexer = new Indexer(Constants.IndexMotorID);
+    //private final Shooter shooter = new Shooter(Constants.shooterMotorLID, Constants.shooterMotorRID);
     private final Cameras cameras = new Cameras(drivetrain);
 
     //Pathplanner
     SendableChooser<Command> autoChooser;
 
-    //Command Groups
-    private final Command shootCmd = Commands.parallel(
-        shooter.setVelocityCmd(Constants.ShooterShootingVelocity),
-        indexer.setVelocityCmd(Constants.IndexerShootingVelocity)
-    );
+    // //Command Groups
+    // private final Command shootCmd = Commands.parallel(
+    //     shooter.setVelocityCmd(Constants.ShooterShootingVelocity),
+    //     indexer.setVelocityCmd(Constants.IndexerShootingVelocity)
+    // );
 
-    private final Command chargeCmd = Commands.parallel(
-        shooter.setVelocityCmd(Constants.ShooterChargeVelocity),
-        indexer.setVelocityCmd(Constants.IndexerChargeVelocity)
-    );
+    // private final Command chargeCmd = Commands.parallel(
+    //     shooter.setVelocityCmd(Constants.ShooterChargeVelocity),
+    //     indexer.setVelocityCmd(Constants.IndexerChargeVelocity)
+    // );
 
     public RobotContainer() {
         //intake = new Intake(5);
+
+        NamedCommands.registerCommand("Intake Command", intake.getIntakeCmd(1));
+
         configureBindings();
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -94,6 +99,7 @@ public class RobotContainer {
                 drive.withVelocityX(-driverCtrl.getLeftY() * SlowSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-driverCtrl.getLeftX() * SlowSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverCtrl.getRightX() * SlowAngularRate)) // Drive counterclockwise with negative X (left)
+                    
         );
 
         // Idle while the robot is disabled. This ensures the configured
@@ -120,14 +126,14 @@ public class RobotContainer {
         //driverCtrl.start().onTrue(sysIdCommandGroup);
 
         // Reset the field-centric heading on left bumper press.
-        driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d())));
+        driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d(Meters.of(12.51), Meters.of(4.041), Rotation2d.fromDegrees(0)))));
 
         driverCtrl.a().whileTrue(intake.getIntakeCmd(-1.0));
         driverCtrl.b().whileTrue(intake.getIntakeCmd(1.0));
         // driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
         // driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
 
-        driverCtrl.leftBumper().whileTrue(drivetrain.applyRequest(() -> drivetrain.getLookAtPointRequest(new Translation2d())
+        driverCtrl.leftBumper().whileTrue(drivetrain.applyRequest(() -> drivetrain.getLookAtPointRequest(new Translation2d(Meters.of(11.913), Meters.of(4.041)))
             .withVelocityX(-driverCtrl.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-driverCtrl.getLeftX() * MaxSpeed)));
         

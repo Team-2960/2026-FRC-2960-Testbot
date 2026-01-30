@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5499545454545451,
-        "y": 3.6845681818181824
+        "x": 4.404943181818181,
+        "y": 0.6234431818181827
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7767045454512256,
-        "y": 4.024693181817986
+        "x": 5.3634772727272715,
+        "y": 0.7058977272727269
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.9617499999999994,
-        "y": 7.415636363636363
+        "x": 7.878340909090909,
+        "y": 1.272772727272727
       },
       "prevControl": {
-        "x": 3.5412602073556596,
-        "y": 6.78150579924171
+        "x": 7.8165,
+        "y": 0.46884090909090903
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Trench Setup 1 End"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4499396863691194,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,11 +46,11 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 2.0,
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Test Auto",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

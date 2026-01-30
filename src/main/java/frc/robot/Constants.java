@@ -28,7 +28,7 @@ public class Constants {
     // Motor IDs
     public static final int shooterMotorLID = 999;
     public static final int shooterMotorRID = 999;
-    public static final int IntakeMotorID = 20;
+    public static final int IntakeMotorID = 19;
     public static final int IndexMotorID = 999;
 
 

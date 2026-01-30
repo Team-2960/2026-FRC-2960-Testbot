@@ -72,7 +72,14 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Intake Command",
+      "waypointRelativePos": 2.3679999999999994,
+      "endWaypointRelativePos": 3.0,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 13.16,
     "maxAcceleration": 5.0,

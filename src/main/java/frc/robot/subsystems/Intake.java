@@ -11,11 +11,13 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -32,18 +34,21 @@ public class Intake extends SubsystemBase {
     private final TalonFX intakeMotor = new TalonFX(Constants.IntakeMotorID, CANBus.roboRIO());
     private final VoltageOut sysIDVolt = new VoltageOut(0.0);
     
-    final MotionMagicVelocityVoltage intakeMotorMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
+    private final MotionMagicVelocityVoltage intakeMotorMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
+
 
     public Intake(int intakeMotorId) {
-        var intakeMotorConfig = new Slot0Configs();
-        intakeMotorConfig.kP = 0.0;
-        intakeMotorConfig.kI = 0.0;
-        intakeMotorConfig.kD = 0.0;
-        intakeMotorConfig.kS = 0.0;
-        intakeMotorConfig.kV = 0.0;
-        intakeMotorConfig.kA = 0.0;
+        MotorOutputConfigs outputConfig = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake);
+        var closedLoopConfig = new Slot0Configs();
+        closedLoopConfig.kP = 0.0;
+        closedLoopConfig.kI = 0.0;
+        closedLoopConfig.kD = 0.0;
+        closedLoopConfig.kS = 0.0;
+        closedLoopConfig.kV = 0.0;
+        closedLoopConfig.kA = 0.0;
 
-        intakeMotor.getConfigurator().apply(intakeMotorConfig);
+        intakeMotor.getConfigurator().apply(closedLoopConfig);
+        intakeMotor.getConfigurator().apply(outputConfig);
     }
 
     

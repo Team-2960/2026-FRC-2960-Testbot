@@ -200,8 +200,8 @@ public class AprilTagPipeline extends SubsystemBase {
     }
 
     @AutoLogOutput (key = "Camera: {cameraName}")
-    public Pose2d getLastPose(){
-        return last_pose;
+    public Pose3d getLastPose(){
+        return new Pose3d(last_pose);
     }
 
     /**
