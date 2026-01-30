@@ -2,94 +2,169 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
-    private final DutyCycleOut shooterVolts = new DutyCycleOut(0.0);
-    private final VoltageOut sysIDVolt = new VoltageOut(0.0);
-    private final TalonFX shooterMotorL = new TalonFX(Constants.shooterMotorLID, CANBus.roboRIO());
-    private final TalonFX shooterMotorR = new TalonFX(Constants.shooterMotorRID, CANBus.roboRIO());
-    
-    final MotionMagicVelocityVoltage shooterMotorMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
+    // Motors
+    private final TalonFX motorLeader;
+    private final TalonFX motorFollower;
 
-    public Shooter(int shooterMotorLID, int shooterMotorRID) {
-        var shooterMotorLConfig = new Slot0Configs();
-        shooterMotorLConfig.kP = 0.0;
-        shooterMotorLConfig.kI = 0.0;
-        shooterMotorLConfig.kD = 0.0;
-        shooterMotorLConfig.kS = 0.0;
-        shooterMotorLConfig.kV = 0.0;
-        shooterMotorLConfig.kA = 0.0;
+    // Motor Control Requests
+    private final VoltageOut voltCtrl = new VoltageOut(0.0);
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
 
-        shooterMotorL.getConfigurator().apply(shooterMotorLConfig);
-        shooterMotorR.setControl(new Follower(shooterMotorLID, MotorAlignmentValue.Opposed));
-    }
-
-    
-    public void setControl(double output){
-        shooterMotorL.setControl(shooterVolts.withOutput(output));
-    }
-
-    public void setVelocity(double velocity){
-        shooterMotorL.setControl(shooterMotorMagicVelocityVoltage.withVelocity(velocity));
-    }
-
-    public Command getShooterCmd(double input) {
-        return this.runEnd(
-           () -> setControl(input),
-           () -> setControl(0.0)
-        );
-    }
-
-    public Command setVelocityCmd(double velocity) {
-        return this.runEnd(
-         () -> setVelocity(velocity),
-         () -> setVelocity(0.0)
-        );
-    }
-
-    private final SysIdRoutine shooterSysIdRoutine = 
-        new SysIdRoutine(
+    // SysId
+    private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(null,
-             Volts.of(4),
-              null,
-             (state) -> SignalLogger.writeString("state", state.toString()) 
-            ), 
+                    Volts.of(4),
+                    null,
+                    (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism(
-                (volts) -> shooterMotorR.setControl(sysIDVolt.withOutput(volts.in(Volts))),
-         null,
-         this
-        )
-    );
+                    this::setVoltage,
+                    null,
+                    this));
 
+    /**
+     * Constructor
+     * 
+     * @param motorLeaderID   CAN ID of the lead shooter motor
+     * @param motorFollowerID CAN ID of the follower shooter motor
+     * @param bus             CAN Bus the shooter motors are on
+     * @param gearRatio       Gear ratio between the shooter and the motor
+     */
+    public Shooter(int motorLeaderID, int motorFollowerID, CANBus bus, double gearRatio) {
+        motorLeader = new TalonFX(motorLeaderID, bus);
+        motorFollower = new TalonFX(motorFollowerID, bus);
+
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+        motorConfig.MotorOutput
+                .withNeutralMode(NeutralModeValue.Brake);
+
+        motorConfig.Feedback
+                .withSensorToMechanismRatio(gearRatio);
+
+        motorConfig.Slot0
+                .withKP(0.0)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(0.0)
+                .withKV(0.0)
+                .withKA(0.0);
+
+        motorLeader.getConfigurator().apply(motorConfig);
+
+        motorLeader.getConfigurator().apply(motorConfig);
+        motorFollower.setControl(new Follower(motorLeaderID, MotorAlignmentValue.Aligned));
+    }
+
+    /**
+     * Gets the current voltage of the intake
+     * 
+     * @return
+     */
+    @AutoLogOutput
+    public Voltage getVoltage() {
+        return motorLeader.getMotorVoltage().getValue();
+    }
+
+    /**
+     * Gets the current velocity of the motor
+     * 
+     * @return current velocity of the motor
+     */
+    @AutoLogOutput
+    public AngularVelocity getVelocity() {
+        return motorLeader.getVelocity().getValue();
+    }
+
+    /**
+     * Sets the target motor voltage
+     * 
+     * @param volts target motor voltage
+     */
+    public void setVoltage(Voltage volts) {
+        motorLeader.setControl(voltCtrl.withOutput(volts));
+    }
+
+    /**
+     * Sets the target motor velocity
+     * 
+     * @param velocity target motor velocity
+     */
+    public void setVelocity(AngularVelocity velocity) {
+        motorLeader.setControl(velCtrl.withVelocity(velocity));
+    }
+
+    /**
+     * Creates a new command to run the intake at a set target voltage
+     * 
+     * @param volts target voltage
+     * @return new command to run the intake at a set target voltage
+     */
+    public Command setVoltageCmd(Voltage input) {
+        return this.runEnd(
+                () -> setVoltage(input),
+                () -> setVoltage(Volts.zero()));
+    }
+
+    /**
+     * Creates a new command to run the intake at a set target velocity
+     * 
+     * @param volts target velocity
+     * @return new command to run the intake at a set target velocity
+     */
+    public Command setVelocityCmd(AngularVelocity velocity) {
+        return this.runEnd(
+                () -> setVelocity(velocity),
+                () -> setVelocity(RotationsPerSecond.zero()));
+    }
+
+    /**
+     * Create a Quasistatic SysId command
+     * 
+     * @param direction direction of the command
+     * @return Quasistatic SysId command
+     */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return shooterSysIdRoutine.quasistatic(direction);
+        return sysIdRoutine.quasistatic(direction);
     }
 
+    /**
+     * Create a Dynamic SysId command
+     * 
+     * @param direction direction of the command
+     * @return Dynamic SysId command
+     */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return shooterSysIdRoutine.dynamic(direction);
+        return sysIdRoutine.dynamic(direction);
     }
 
+    /**
+     * Update shooter RPM on dashboard
+     */
     @Override
-    public void periodic(){
-        SmartDashboard.putNumber("ShooterRight RPM", shooterMotorR.getVelocity().getValue().in(Rotations.per(Minute)));
-        SmartDashboard.putNumber("ShooterLeft RPM", shooterMotorL.getVelocity().getValue().in(Rotations.per(Minute)));
+    public void periodic() {
+        SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
     }
 }
-
