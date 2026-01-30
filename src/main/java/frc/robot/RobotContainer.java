@@ -128,8 +128,8 @@ public class RobotContainer {
         // Reset the field-centric heading on left bumper press.
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d(Meters.of(12.51), Meters.of(4.041), Rotation2d.fromDegrees(0)))));
 
-        driverCtrl.a().whileTrue(intake.getIntakeCmd(-1.0));
-        driverCtrl.b().whileTrue(intake.getIntakeCmd(1.0));
+        driverCtrl.a().whileTrue(intake.getIntakeCmd(-Constants.IntakeVelocity));
+        driverCtrl.b().whileTrue(intake.getIntakeCmd(Constants.IntakeVelocity));
         // driverCtrl.a().whileTrue(intake.getIntakeCmd(() -> Volts.of(-12)));
         // driverCtrl.b().whileTrue(intake.getIntakeCmd(() -> Volts.of(12 * 0.6)));
 

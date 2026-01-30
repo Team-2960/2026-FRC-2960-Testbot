@@ -37,5 +37,6 @@ public class Constants {
     public static final double IndexerShootingVelocity = 0;
     public static final double ShooterChargeVelocity = 0;
     public static final double IndexerChargeVelocity = 0;
+    public static final double IntakeVelocity = 1;
 
 }
