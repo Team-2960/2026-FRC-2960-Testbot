@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldLayout;
 
-public class Shooter extends SubsystemBase {
+public class ShooterWheel extends SubsystemBase {
     // Motors
     private final TalonFX motorLeader;
     private final TalonFX motorFollower;
@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
      * @param bus             CAN Bus the shooter motors are on
      * @param gearRatio       Gear ratio between the shooter and the motor
      */
-    public Shooter(int motorLeaderID, int motorFollowerID, CANBus bus, double gearRatio,
+    public ShooterWheel(int motorLeaderID, int motorFollowerID, CANBus bus, double gearRatio,
             CommandSwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
 
