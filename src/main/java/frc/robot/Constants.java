@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.ctre.phoenix6.CANBus;
+
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -26,13 +28,14 @@ public class Constants {
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(.5);
 
+    public static final CANBus rioBus = CANBus.roboRIO();
+    public static final CANBus canivoreBus = new CANBus("canivore");
 
     // Motor IDs
     public static final int shooterMotorLID = 999;
     public static final int shooterMotorRID = 999;
     public static final int IntakeMotorID = 19;
     public static final int IndexMotorID = 999;
-
 
     // Shooter Constants
     public static final double ShooterShootingVelocity = 0;
@@ -41,6 +44,8 @@ public class Constants {
     public static final double IndexerChargeVelocity = 0;
 
     // Intake Constants
+    public static final double intakeGearRatio = 1;
+
     public static final Voltage intakeInVolt = Volts.of(12.0);
     public static final Voltage intakeOutVolt = Volts.of(-12.0);
 

@@ -30,7 +30,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeRoller;
 
 public class RobotContainer {
 
@@ -45,17 +45,26 @@ public class RobotContainer {
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final Intake intake = new Intake(Constants.IntakeMotorID);
+    private final IntakeRoller intake = new IntakeRoller(
+            Constants.IntakeMotorID,
+            Constants.canivoreBus,
+            Constants.intakeGearRatio);
     // private final Indexer indexer = new Indexer(Constants.IndexMotorID);
     // private final Shooter shooter = new Shooter(Constants.shooterMotorLID,
     // Constants.shooterMotorRID);
 
     // Cameras
-    private final AprilTagPipeline leftCamera = new AprilTagPipeline(drivetrain, Constants.leftCameraSettings,
-            "LeftCamera", "LeftCamera");
-    private final AprilTagPipeline rightCamera = new AprilTagPipeline(drivetrain, Constants.rightCameraSettings,
-            "RightCamera", "RightCamera");
-    
+    private final AprilTagPipeline leftCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.leftCameraSettings,
+            "LeftCamera",
+            "LeftCamera");
+    private final AprilTagPipeline rightCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.rightCameraSettings,
+            "RightCamera",
+            "RightCamera");
+
     @SuppressWarnings("unused")
     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
@@ -118,7 +127,7 @@ public class RobotContainer {
 
         drivetrainBindings();
         intakeBindings();
-        
+
     }
 
     /**
