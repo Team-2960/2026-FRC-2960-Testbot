@@ -1,7 +1,10 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,9 +15,11 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -38,10 +43,20 @@ public class Constants {
     public static final int IndexMotorID = 999;
 
     // Shooter Constants
+    public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
+
+    public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
+    public static final Angle shooterHoodTol = Degrees.of(2);
+    public static final Angle shotAngleTol = Degrees.of(2);
+
+
     public static final double ShooterShootingVelocity = 0;
     public static final double IndexerShootingVelocity = 0;
     public static final double ShooterChargeVelocity = 0;
     public static final double IndexerChargeVelocity = 0;
+
+    // Indexer Constants
+    public static final Voltage indexerFeedVolt = Volts.of(12);
 
     // Intake Constants
     public static final double intakeGearRatio = 1;

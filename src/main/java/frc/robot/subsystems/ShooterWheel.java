@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -20,6 +19,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
@@ -108,6 +108,21 @@ public class ShooterWheel extends SubsystemBase {
     @AutoLogOutput
     public AngularVelocity getVelocity() {
         return motorLeader.getVelocity().getValue();
+    }
+
+    /**
+     * Checks if the current velocity is within tolerance of the set point
+     * 
+     * @param tol measurement tolerance
+     * @return true if in velocity control mode and within tolerance of the target.
+     *         False otherwise
+     */
+    public boolean atVelocity(AngularVelocity tol) {
+        return motorLeader.getAppliedControl() == velCtrl &&
+                MathUtil.isNear(
+                        velCtrl.Velocity,
+                        getVelocity().in(RotationsPerSecond),
+                        tol.in(RotationsPerSecond));
     }
 
     /**

@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -22,6 +21,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -90,33 +90,6 @@ public class ShooterHood extends SubsystemBase {
     }
 
     /**
-     * Sets a target voltage to the motor
-     * 
-     * @param volts target voltage
-     */
-    public void setVoltage(Voltage volts) {
-        motor.setControl(voltCtrl.withOutput(volts));
-    }
-
-    /**
-     * Sets a target velocity to the motor
-     * 
-     * @param velocity target velocity
-     */
-    public void setVelocity(AngularVelocity velocity) {
-        motor.setControl(velCtrl.withVelocity(velocity));
-    }
-
-    /**
-     * Sets a target velocity to the motor
-     * 
-     * @param velocity target velocity
-     */
-    public void setPosition(Angle angle) {
-        motor.setControl(posCtrl.withPosition(angle));
-    }
-
-    /**
      * Gets the current voltage of the shooter hood
      * 
      * @return
@@ -144,6 +117,63 @@ public class ShooterHood extends SubsystemBase {
     @AutoLogOutput
     public Angle getPosition() {
         return motor.getPosition().getValue();
+    }
+
+    /**
+     * Checks if the current velocity is within tolerance of the set point
+     * 
+     * @param tol measurement tolerance
+     * @return true if in velocity control mode and within tolerance of the target.
+     *         False otherwise
+     */
+    public boolean atVelocity(AngularVelocity tol) {
+        return motor.getAppliedControl() == velCtrl &&
+                MathUtil.isNear(
+                        velCtrl.Velocity,
+                        getVelocity().in(RotationsPerSecond),
+                        tol.in(RotationsPerSecond));
+    }
+
+    /**
+     * Checks if the current position is within tolerance of the set point
+     * 
+     * @param tol measurement tolerance
+     * @return true if in position control mode and within tolerance of the target.
+     *         False otherwise
+     */
+    public boolean atPosition(Angle tol) {
+        return motor.getAppliedControl() == velCtrl &&
+                MathUtil.isNear(
+                        posCtrl.Position,
+                        getPosition().in(Rotations),
+                        tol.in(Rotations));
+    }
+
+    /**
+     * Sets a target voltage to the motor
+     * 
+     * @param volts target voltage
+     */
+    public void setVoltage(Voltage volts) {
+        motor.setControl(voltCtrl.withOutput(volts));
+    }
+
+    /**
+     * Sets a target velocity to the motor
+     * 
+     * @param velocity target velocity
+     */
+    public void setVelocity(AngularVelocity velocity) {
+        motor.setControl(velCtrl.withVelocity(velocity));
+    }
+
+    /**
+     * Sets a target velocity to the motor
+     * 
+     * @param velocity target velocity
+     */
+    public void setPosition(Angle angle) {
+        motor.setControl(posCtrl.withPosition(angle));
     }
 
     /**

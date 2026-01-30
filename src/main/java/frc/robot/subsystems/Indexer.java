@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 
 public class Indexer extends SubsystemBase {
 
@@ -128,6 +129,22 @@ public class Indexer extends SubsystemBase {
         return this.runEnd(
                 () -> setVelocity(velocity),
                 () -> setVelocity(RotationsPerSecond.zero()));
+    }
+
+    /**
+     * Creates a command to feed the shooter
+     * @return  command to feed the shooter
+     */
+    public Command runShooterFeed() {
+        return setVoltageCmd(Constants.indexerFeedVolt);
+    }
+
+    /**
+     * Creates a command to stop feeding the shooter
+     * @return  command to stop feeding the shooter
+     */
+    public Command stopShooterFeed() {
+        return setVoltageCmd(Volts.zero());
     }
 
     /**
