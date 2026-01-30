@@ -14,7 +14,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -29,6 +31,7 @@ public class IntakeAngle extends SubsystemBase {
 
     // Motor
     private final TalonFX motor;
+    private final CANcoder encoder;
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
@@ -51,9 +54,9 @@ public class IntakeAngle extends SubsystemBase {
      * 
      * @param motorID
      */
-    public IntakeAngle(int motorId, CANBus bus, double gearRatio) {
-        // TODO: add encoder
+    public IntakeAngle(int motorId, int encoderId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
+        encoder = new CANcoder(encoderId, bus);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -61,7 +64,10 @@ public class IntakeAngle extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake);
 
         motorConfig.Feedback
-                .withSensorToMechanismRatio(gearRatio);
+                .withSensorToMechanismRatio(1)
+                .withRemoteCANcoder(encoder)
+                .withRotorToSensorRatio(gearRatio)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
 
         motorConfig.Slot0
                 .withKP(0.0)
