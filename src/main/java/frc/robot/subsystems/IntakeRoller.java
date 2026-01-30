@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
-public class Intake extends SubsystemBase {
+public class IntakeRoller extends SubsystemBase {
     private final VoltageOut intakeVolts = new VoltageOut(0.0);
     private final TalonFX intakeMotor = new TalonFX(Constants.IntakeMotorID, CANBus.roboRIO());
     private final VoltageOut sysIDVolt = new VoltageOut(0.0);
@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
     private final MotionMagicVelocityVoltage intakeMotorMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
 
 
-    public Intake(int intakeMotorId) {
+    public IntakeRoller(int intakeMotorId) {
         MotorOutputConfigs outputConfig = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake);
         var closedLoopConfig = new Slot0Configs();
         closedLoopConfig.kP = 0.0;
