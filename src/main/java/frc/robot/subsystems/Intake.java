@@ -12,7 +12,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -26,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
-    private final DutyCycleOut intakeVolts = new DutyCycleOut(0.0);
+    private final VoltageOut intakeVolts = new VoltageOut(0.0);
     private final TalonFX intakeMotor = new TalonFX(Constants.IntakeMotorID, CANBus.roboRIO());
     private final VoltageOut sysIDVolt = new VoltageOut(0.0);
     
@@ -48,8 +47,8 @@ public class Intake extends SubsystemBase {
     }
 
     
-    public void setControl(double output){
-        intakeMotor.setControl(intakeVolts.withOutput(output));
+    public void setVoltage(Voltage volts){
+        intakeMotor.setControl(intakeVolts.withOutput(volts));
     }
 
     public void setVelocity(AngularVelocity velocity){
@@ -66,10 +65,10 @@ public class Intake extends SubsystemBase {
         return intakeMotor.getVelocity().getValue();
     }
 
-    public Command getIntakeCmd(double input) {
+    public Command setVoltageCmd(Voltage volts) {
         return this.runEnd(
-           () -> setControl(input),
-           () -> setControl(0.0)
+           () -> setVoltage(volts),
+           () -> setVoltage(Volts.zero())
         );
     }
 
