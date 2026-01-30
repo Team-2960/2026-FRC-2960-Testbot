@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -18,11 +19,13 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.FieldLayout;
 
 public class Shooter extends SubsystemBase {
     // Motors
@@ -32,6 +35,8 @@ public class Shooter extends SubsystemBase {
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+
+    private final CommandSwerveDrivetrain drivetrain;
 
     // SysId
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
@@ -52,10 +57,15 @@ public class Shooter extends SubsystemBase {
      * @param bus             CAN Bus the shooter motors are on
      * @param gearRatio       Gear ratio between the shooter and the motor
      */
-    public Shooter(int motorLeaderID, int motorFollowerID, CANBus bus, double gearRatio) {
+    public Shooter(int motorLeaderID, int motorFollowerID, CANBus bus, double gearRatio,
+            CommandSwerveDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
+
+        // Initialize Motors
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
 
+        // Configure Motors
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         motorConfig.MotorOutput
@@ -137,7 +147,17 @@ public class Shooter extends SubsystemBase {
     public Command setVelocityCmd(AngularVelocity velocity) {
         return this.runEnd(
                 () -> setVelocity(velocity),
-                () -> setVelocity(RotationsPerSecond.zero()));
+                () -> setVoltage(Volts.zero()));
+    }
+
+    /**
+     * Creates a new command to set the shooter for shooting at the hub
+     * @return  new command to set the shooter for shooting at the hub
+     */
+    public Command hubShotCmd() {
+        return this.runEnd(
+                () -> setVelocity(calcHubShootSpeed()),
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -166,5 +186,19 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
+    }
+
+    /**
+     * Calculates the angular velocity for shooting into the hub from the current
+     * robot position
+     * 
+     * @return target angular velocity
+     */
+    private AngularVelocity calcHubShootSpeed() {
+        Distance hubDist = Meters.of(drivetrain.getPose2d().getTranslation().getDistance(FieldLayout.getHubCenter()));
+
+        // TODO Implement Formula for target shooter wheel speed
+
+        return RotationsPerSecond.zero();
     }
 }
