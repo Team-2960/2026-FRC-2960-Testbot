@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -21,11 +24,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.FieldLayout;
 
 public class ShooterHood extends SubsystemBase {
 
@@ -171,26 +176,48 @@ public class ShooterHood extends SubsystemBase {
      * @param target target velocity
      * @return new command to run the shooter hood at a set target velocity
      */
-    public Command setVelocityCmd(Angle target) {
+    public Command setPositionCmd(Angle target) {
         return this.runEnd(
                 () -> setPosition(target),
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
     /**
+     * Creates a new command to run the shooter hood at a set target velocity
+     * 
+     * @param target target velocity
+     * @return new command to run the shooter hood at a set target velocity
+     */
+    public Command setPositionCmd(Supplier<Angle> target) {
+        return this.runEnd(
+                () -> setPosition(target.get()),
+                () -> setVelocity(RotationsPerSecond.zero()));
+    }
+
+    /**
+     * Creates a new command to set the shooter hood for shooting at the hub
+     * 
+     * @return new command to set the shooter hood for shooting at the hub
+     */
+    public Command hubShotCmd() {
+        return setPositionCmd(this::calcHubShotAngle);
+    }
+
+    /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.quasistatic(direction);
     }
 
-
     /**
      * Create a Dynamic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Dynamic SysId command
+     * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.dynamic(direction);
@@ -204,5 +231,13 @@ public class ShooterHood extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Shooter Hood Angle", getPosition().in(Degrees));
         SmartDashboard.putNumber("Shooter Hood Angle RPM", getVelocity().in(Rotations.per(Minute)));
+    }
+
+    private Angle calcHubShotAngle() {
+        Distance hubDist = FieldLayout.getHubDist(drivetrain.getPose2d().getTranslation());
+
+        // TODO Implement Formula for target shooter hood angle
+
+        return Rotations.zero();
     }
 }

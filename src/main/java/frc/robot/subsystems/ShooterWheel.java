@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
@@ -151,13 +153,24 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
+     * Creates a new command to run the intake at a set target velocity
+     * 
+     * @param volts target velocity
+     * @return new command to run the intake at a set target velocity
+     */
+    public Command setVelocityCmd(Supplier<AngularVelocity> velocity) {
+        return this.runEnd(
+                () -> setVelocity(velocity.get()),
+                () -> setVoltage(Volts.zero()));
+    }
+
+    /**
      * Creates a new command to set the shooter for shooting at the hub
-     * @return  new command to set the shooter for shooting at the hub
+     * 
+     * @return new command to set the shooter for shooting at the hub
      */
     public Command hubShotCmd() {
-        return this.runEnd(
-                () -> setVelocity(calcHubShootSpeed()),
-                () -> setVoltage(Volts.zero()));
+        return setVelocityCmd(this::calcHubShotSpeed);
     }
 
     /**
@@ -194,8 +207,8 @@ public class ShooterWheel extends SubsystemBase {
      * 
      * @return target angular velocity
      */
-    private AngularVelocity calcHubShootSpeed() {
-        Distance hubDist = Meters.of(drivetrain.getPose2d().getTranslation().getDistance(FieldLayout.getHubCenter()));
+    private AngularVelocity calcHubShotSpeed() {
+        Distance hubDist = FieldLayout.getHubDist(drivetrain.getPose2d().getTranslation());
 
         // TODO Implement Formula for target shooter wheel speed
 

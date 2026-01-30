@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -86,5 +87,14 @@ public class FieldLayout {
      */
     public static Translation2d getHubCenterFront() {
         return isRedAlliance() ? redHubCenterFront : blueHubCenterFront;
+    }
+
+    /**
+     * Calculates the distance to the current alliance hub from a given position
+     * @param position  position to check to distance of
+     * @return  distance to the current alliance hub 
+     */
+    public static Distance getHubDist(Translation2d position) {
+        return Meters.of(position.getDistance(FieldLayout.getHubCenter()));
     }
 }
