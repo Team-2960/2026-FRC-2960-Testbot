@@ -24,7 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Cameras;
+import frc.robot.subsystems.AprilTagPipeline;
+import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 
@@ -46,14 +47,20 @@ public class RobotContainer {
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
     private final CommandXboxController operatorCtrl = new CommandXboxController(1);
 
+    // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private final Intake intake = new Intake(Constants.IntakeMotorID);
     //private final Indexer indexer = new Indexer(Constants.IndexMotorID);
     //private final Shooter shooter = new Shooter(Constants.shooterMotorLID, Constants.shooterMotorRID);
-    private final Cameras cameras = new Cameras(drivetrain);
+    
+    // Cameras
+    private final AprilTagPipeline leftCamera = new AprilTagPipeline(drivetrain, Constants.leftCameraSettings, "LeftCamera", "LeftCamera");
+    private final AprilTagPipeline rightCamera = new AprilTagPipeline(drivetrain, Constants.rightCameraSettings, "RightCamera", "RightCamera");
 
-    //Pathplanner
+    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+
+    // Pathplanner
     SendableChooser<Command> autoChooser;
 
     // //Command Groups

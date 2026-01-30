@@ -6,12 +6,18 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
+import org.photonvision.estimation.TargetModel;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionTargetSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -62,10 +68,10 @@ public class AprilTagPipeline extends SubsystemBase {
 
 
     // Camera Simulation
-    // TargetModel targetModel;
-    // SimCameraProperties cameraProp;
-    // PhotonCameraSim cameraSim;
-    // VisionTargetSim visionTargetSim;
+    private TargetModel targetModel;
+    private SimCameraProperties cameraProp;
+    private PhotonCameraSim cameraSim;
+    private VisionTargetSim visionTargetSim;
 
     // Test Values
     private double displayNum;
@@ -117,12 +123,12 @@ public class AprilTagPipeline extends SubsystemBase {
             .getStructTopic(cameraName + " Estimated Pose", Pose2d.struct).publish();
 
         // Vision Simulation
-        // targetModel = TargetModel.kAprilTag16h5;
-        // cameraProp = new SimCameraProperties();
-        // cameraProp.setFPS(60);
-        // cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(70));
-        // cameraSim = new PhotonCameraSim(camera, cameraProp);
-        // cameraSim.enableDrawWireframe(true);
+        targetModel = TargetModel.kAprilTag16h5;
+        cameraProp = new SimCameraProperties();
+        cameraProp.setFPS(60);
+        cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(70));
+        cameraSim = new PhotonCameraSim(camera, cameraProp);
+        cameraSim.enableDrawWireframe(true);
 
         // Test Values
         // TODO Delete after testing
@@ -200,6 +206,14 @@ public class AprilTagPipeline extends SubsystemBase {
     @AutoLogOutput (key = "Camera: {cameraName}")
     public Pose3d getLastPose(){
         return new Pose3d(last_pose);
+    }
+
+    public PhotonCameraSim getCameraSim() {
+        return cameraSim;
+    }
+
+    public Transform3d getOffset() {
+        return settings.robot_to_camera;
     }
 
     /**
