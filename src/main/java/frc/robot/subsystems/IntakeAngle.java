@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -11,25 +12,31 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 
-public class Indexer extends SubsystemBase {
+public class IntakeAngle extends SubsystemBase {
 
     // Motor
     private final TalonFX motor;
+    private final CANcoder encoder;
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
@@ -47,8 +54,9 @@ public class Indexer extends SubsystemBase {
      * 
      * @param motorID
      */
-    public Indexer(int motorId, CANBus bus, double gearRatio) {
+    public IntakeAngle(int motorId, int encoderId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
+        encoder = new CANcoder(encoderId, bus);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -56,7 +64,10 @@ public class Indexer extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake);
 
         motorConfig.Feedback
-                .withSensorToMechanismRatio(gearRatio);
+                .withSensorToMechanismRatio(1)
+                .withRemoteCANcoder(encoder)
+                .withRotorToSensorRatio(gearRatio)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
 
         motorConfig.Slot0
                 .withKP(0.0)
@@ -88,7 +99,16 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Gets the current voltage of the indexer
+     * Sets a target velocity to the motor
+     * 
+     * @param velocity target velocity
+     */
+    public void setPosition(Angle angle) {
+        motor.setControl(posCtrl.withPosition(angle));
+    }
+
+    /**
+     * Gets the current voltage of the intake
      * 
      * @return
      */
@@ -108,43 +128,49 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Creates a new command to run the indexer at a set target voltage
+     * Gets the current Position of the motor
      * 
-     * @param volts target voltage
-     * @return new command to run the indexer at a set target voltage
+     * @return current Position of the motor
      */
-    public Command setVoltageCmd(Voltage volts) {
+    @AutoLogOutput
+    public Angle getPosition() {
+        return motor.getPosition().getValue();
+    }
+
+    /**
+     * Creates a new command to run the intake at a set target voltage
+     * 
+     * @param target target voltage
+     * @return new command to run the intake at a set target voltage
+     */
+    public Command setVoltageCmd(Voltage target) {
         return this.runEnd(
-                () -> setVoltage(volts),
+                () -> setVoltage(target),
                 () -> setVoltage(Volts.zero()));
     }
 
     /**
-     * Creates a new command to run the indexer at a set target velocity
+     * Creates a new command to run the intake at a set target velocity
      * 
-     * @param volts target velocity
-     * @return new command to run the indexer at a set target velocity
+     * @param target target velocity
+     * @return new command to run the intake at a set target velocity
      */
-    public Command setVelocityCmd(AngularVelocity velocity) {
+    public Command setVelocityCmd(AngularVelocity target) {
         return this.runEnd(
-                () -> setVelocity(velocity),
+                () -> setVelocity(target),
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
     /**
-     * Creates a command to feed the shooter
-     * @return  command to feed the shooter
+     * Creates a new command to run the intake at a set target velocity
+     * 
+     * @param target target velocity
+     * @return new command to run the intake at a set target velocity
      */
-    public Command runShooterFeed() {
-        return setVoltageCmd(Constants.indexerFeedVolt);
-    }
-
-    /**
-     * Creates a command to stop feeding the shooter
-     * @return  command to stop feeding the shooter
-     */
-    public Command stopShooterFeed() {
-        return setVoltageCmd(Volts.zero());
+    public Command setVelocityCmd(Angle target) {
+        return this.runEnd(
+                () -> setPosition(target),
+                () -> setVelocity(RotationsPerSecond.zero()));
     }
 
     /**
@@ -167,11 +193,12 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Update indexer RPM on dashboard
+     * Update intake RPM on dashboard
      */
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        SmartDashboard.putNumber("Indexer RPM", getVelocity().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
+        SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
     }
 }

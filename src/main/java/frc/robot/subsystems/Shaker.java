@@ -20,9 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
 
-public class Indexer extends SubsystemBase {
+public class Shaker extends SubsystemBase {
 
     // Motor
     private final TalonFX motor;
@@ -47,7 +46,7 @@ public class Indexer extends SubsystemBase {
      * 
      * @param motorID
      */
-    public Indexer(int motorId, CANBus bus, double gearRatio) {
+    public Shaker(int motorId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
@@ -88,7 +87,7 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Gets the current voltage of the indexer
+     * Gets the current voltage of the shaker
      * 
      * @return
      */
@@ -108,10 +107,10 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Creates a new command to run the indexer at a set target voltage
+     * Creates a new command to run the shaker at a set target voltage
      * 
      * @param volts target voltage
-     * @return new command to run the indexer at a set target voltage
+     * @return new command to run the shaker at a set target voltage
      */
     public Command setVoltageCmd(Voltage volts) {
         return this.runEnd(
@@ -120,31 +119,15 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Creates a new command to run the indexer at a set target velocity
+     * Creates a new command to run the shaker at a set target velocity
      * 
      * @param volts target velocity
-     * @return new command to run the indexer at a set target velocity
+     * @return new command to run the shaker at a set target velocity
      */
     public Command setVelocityCmd(AngularVelocity velocity) {
         return this.runEnd(
                 () -> setVelocity(velocity),
                 () -> setVelocity(RotationsPerSecond.zero()));
-    }
-
-    /**
-     * Creates a command to feed the shooter
-     * @return  command to feed the shooter
-     */
-    public Command runShooterFeed() {
-        return setVoltageCmd(Constants.indexerFeedVolt);
-    }
-
-    /**
-     * Creates a command to stop feeding the shooter
-     * @return  command to stop feeding the shooter
-     */
-    public Command stopShooterFeed() {
-        return setVoltageCmd(Volts.zero());
     }
 
     /**
@@ -167,11 +150,11 @@ public class Indexer extends SubsystemBase {
     }
 
     /**
-     * Update indexer RPM on dashboard
+     * Update shaker RPM on dashboard
      */
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        SmartDashboard.putNumber("Indexer RPM", getVelocity().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("Shaker RPM", getVelocity().in(Rotations.per(Minute)));
     }
 }
