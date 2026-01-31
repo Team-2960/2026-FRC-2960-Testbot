@@ -229,4 +229,9 @@ public class ShooterWheel extends SubsystemBase {
 
         return RotationsPerSecond.zero();
     }
+
+    @AutoLogOutput
+    public String getCommandString() {
+        return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
 }

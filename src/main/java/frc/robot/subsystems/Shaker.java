@@ -157,4 +157,8 @@ public class Shaker extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Shaker RPM", getVelocity().in(Rotations.per(Minute)));
     }
+
+    public String getCommandString() {
+        return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
 }

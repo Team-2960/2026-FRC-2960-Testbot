@@ -201,4 +201,9 @@ public class IntakeAngle extends SubsystemBase {
         SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
         SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
     }
+
+    @AutoLogOutput
+    public String getCommandString() {
+        return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
 }

@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import frc.robot.FieldLayout;
@@ -31,6 +33,7 @@ public class MatchPeriodTracking {
      * 
      * @return current match period
      */
+    @AutoLogOutput (key = "Current Match Period")
     public static MatchPeriod getPeriod() {
         MatchPeriod period = MatchPeriod.UNDEFINED;
 
@@ -62,6 +65,7 @@ public class MatchPeriodTracking {
      * 
      * @return current match time in seconds
      */
+    @AutoLogOutput (key = "Match Time")
     public static  double getMatchTime() {
         double matchTime = DriverStation.getMatchTime();
 
@@ -78,6 +82,7 @@ public class MatchPeriodTracking {
      * @param period period to check
      * @return number of seconds until the end of the selected match period
      */
+    @AutoLogOutput (key = "Time to End of Period: {period}")
     public static double timeToEndOfPeriod(MatchPeriod period) {
         switch (period) {
             case AUTO:
@@ -105,6 +110,7 @@ public class MatchPeriodTracking {
      * @return True if current alliance won auton, false if it did not. Not set if
      *         input is invalid or not teleop period
      */
+    @AutoLogOutput (key = "Alliance Won Auton")
     public static Optional<Boolean> allianceWonAuton() {
         String autonStr = DriverStation.getGameSpecificMessage();
         Optional<Boolean> result = Optional.empty();
@@ -124,6 +130,7 @@ public class MatchPeriodTracking {
      * Checks if the hub is active
      * @return  true if the hub is active, false if it is not or if the robot is an invalid state
      */
+    @AutoLogOutput (key = "Is Hub Active")
     public static boolean isHubActive() {
         var wonAuton = allianceWonAuton();
         switch(getPeriod()) {

@@ -270,4 +270,9 @@ public class ShooterHood extends SubsystemBase {
 
         return Rotations.zero();
     }
+
+    @AutoLogOutput
+    public String getCommandString() {
+        return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
 }

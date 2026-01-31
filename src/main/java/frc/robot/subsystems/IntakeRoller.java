@@ -157,4 +157,9 @@ public class IntakeRoller extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Intake RPM", getVelocity().in(Rotations.per(Minute)));
     }
+
+    @AutoLogOutput
+    public String getCommandString() {
+        return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
 }
