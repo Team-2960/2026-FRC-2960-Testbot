@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Trench to Fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Empty Fuel to Middle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Middle Neutral Zone over Bump"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Test Autos",
+  "choreoAuto": false
+}

@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Trench to Fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Empty Fuel to Bottom"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Full Fuel over Bump"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Test Autos",
+  "choreoAuto": false
+}
