@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Minutes;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -14,6 +15,14 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,7 +34,7 @@ import frc.robot.Constants;
 public class Indexer extends SubsystemBase {
 
     // Motor
-    private final TalonFX motor;
+    private final SparkFlex motor;
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
@@ -48,25 +57,29 @@ public class Indexer extends SubsystemBase {
      * @param motorID
      */
     public Indexer(int motorId, CANBus bus, double gearRatio) {
-        motor = new TalonFX(motorId, bus);
+        motor = new SparkFlex(motorId, MotorType.kBrushless);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        // TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-        motorConfig.MotorOutput
-                .withNeutralMode(NeutralModeValue.Brake);
+        // motorConfig.MotorOutput
+        //         .withNeutralMode(NeutralModeValue.Brake);
 
-        motorConfig.Feedback
-                .withSensorToMechanismRatio(gearRatio);
+        // motorConfig.Feedback
+        //         .withSensorToMechanismRatio(gearRatio);
 
-        motorConfig.Slot0
-                .withKP(0.0)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKS(0.0)
-                .withKV(0.0)
-                .withKA(0.0);
+        // motorConfig.Slot0
+        //         .withKP(0.0)
+        //         .withKI(0.0)
+        //         .withKD(0.0)
+        //         .withKS(0.0)
+        //         .withKV(0.0)
+        //         .withKA(0.0);
 
-        motor.getConfigurator().apply(motorConfig);
+        SparkFlexConfig config = new SparkFlexConfig();
+
+        config.idleMode(IdleMode.kBrake);
+
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
@@ -75,7 +88,8 @@ public class Indexer extends SubsystemBase {
      * @param volts target voltage
      */
     public void setVoltage(Voltage volts) {
-        motor.setControl(voltCtrl.withOutput(volts));
+        //motor.setControl(voltCtrl.withOutput(volts));
+        motor.setVoltage(volts);
     }
 
     /**
@@ -84,7 +98,7 @@ public class Indexer extends SubsystemBase {
      * @param velocity target velocity
      */
     public void setVelocity(AngularVelocity velocity) {
-        motor.setControl(velCtrl.withVelocity(velocity));
+        // motor.setControl(velCtrl.withVelocity(velocity));
     }
 
     /**
@@ -94,7 +108,8 @@ public class Indexer extends SubsystemBase {
      */
     @AutoLogOutput
     public Voltage getVoltage() {
-        return motor.getMotorVoltage().getValue();
+        // return motor.getMotorVoltage().getValue();
+        return Volts.of(motor.getBusVoltage() * motor.getAppliedOutput());
     }
 
     /**
@@ -104,7 +119,8 @@ public class Indexer extends SubsystemBase {
      */
     @AutoLogOutput
     public AngularVelocity getVelocity() {
-        return motor.getVelocity().getValue();
+        // return motor.getVelocity().getValue();
+        return Rotations.per(Minute).of(motor.getEncoder().getVelocity());
     }
 
     /**

@@ -8,8 +8,10 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.thethriftybot.server.CAN;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +19,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,7 +33,9 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.subsystems.ShooterWheel;
 
 public class RobotContainer {
 
@@ -39,6 +44,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.maxLinVel.in(MetersPerSecond));
 
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
+
     @SuppressWarnings("unused")
     private final CommandXboxController operatorCtrl = new CommandXboxController(1);
 
@@ -47,11 +53,12 @@ public class RobotContainer {
 
     private final IntakeRoller intake = new IntakeRoller(
             Constants.IntakeMotorID,
-            Constants.canivoreBus,
+            CANBus.roboRIO(),
             Constants.intakeGearRatio);
-    // private final Indexer indexer = new Indexer(Constants.IndexMotorID);
-    // private final Shooter shooter = new Shooter(Constants.shooterMotorLID,
-    // Constants.shooterMotorRID);
+
+    private final ShooterWheel shooter = new ShooterWheel(31, 32, CANBus.roboRIO(), 1, drivetrain);
+    private final Indexer indexer = new Indexer(21, null, 1);
+        
 
     // Cameras
     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
@@ -124,10 +131,9 @@ public class RobotContainer {
      * Configures robot bindings
      */
     private void configureBindings() {
-
         drivetrainBindings();
         intakeBindings();
-
+        shooterBindings();
     }
 
     /**
@@ -142,14 +148,14 @@ public class RobotContainer {
                         fullRVelCtrl));
 
         // Slow Drive Command
-        driverCtrl.rightBumper().whileTrue(
-                drivetrain.getDriveCmd(
-                        slowXVelCtrl,
-                        slowYVelCtrl,
-                        slowRVelCtrl));
+        // driverCtrl.rightBumper().whileTrue(
+        //         drivetrain.getDriveCmd(
+        //                 slowXVelCtrl,
+        //                 slowYVelCtrl,
+        //                 slowRVelCtrl));
 
         // Track Goal
-        driverCtrl.leftBumper().whileTrue(
+        driverCtrl.a().whileTrue(
                 drivetrain.lookAtPointCmd(
                         fullXVelCtrl,
                         fullYVelCtrl,
@@ -176,8 +182,13 @@ public class RobotContainer {
     }
 
     private void intakeBindings() {
-        driverCtrl.a().whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
-        driverCtrl.b().whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
+        driverCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
+        driverCtrl.leftTrigger(0.1).whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
+    }
+
+    private void shooterBindings(){
+        driverCtrl.rightTrigger(0.1).whileTrue(shooter.setVoltageCmd(Volts.of(6)));
+        driverCtrl.rightBumper().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
     }
 
     /**
