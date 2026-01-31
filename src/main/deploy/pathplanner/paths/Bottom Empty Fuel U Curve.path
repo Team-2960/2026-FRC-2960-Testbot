@@ -3,61 +3,74 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.3224886363636355,
-        "y": 0.6440568181818185
+        "x": 9.0,
+        "y": 1.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.467022727272727,
-        "y": 0.7058977272727267
+        "x": 9.230569721615886,
+        "y": 0.9033687241418552
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "FarBottomFuel"
     },
     {
       "anchor": {
-        "x": 2.3745,
-        "y": 1.5716704545454547
+        "x": 8.311227272727272,
+        "y": 4.220522727272727
       },
       "prevControl": {
-        "x": 2.3745,
-        "y": 0.3299480307597369
+        "x": 8.685654411303473,
+        "y": 3.910800909064644
       },
       "nextControl": {
-        "x": 2.3745,
-        "y": 2.8133928783311717
+        "x": 7.936800134151072,
+        "y": 4.53024454548081
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.3745,
-        "y": 6.250965909090909
+        "x": 7.75465909090909,
+        "y": 2.15
       },
       "prevControl": {
-        "x": 2.3745,
-        "y": 5.589319557361202
+        "x": 7.7199972211958325,
+        "y": 2.3975854494674116
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BottomUCurveFullFuel"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5958986731001208,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.7557980900409276,
+      "rotationDegrees": 122.00463588673512
     },
     {
-      "waypointRelativePos": 0.7551266586248494,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 1.3806275579808998,
+      "rotationDegrees": -116.58400000000002
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.2,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.819571865443426,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.2966360856269092,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 3.0,
@@ -80,14 +93,14 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 90.0
+    "velocity": 2.0,
+    "rotation": -115.0
   },
   "reversed": false,
   "folder": "Test Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 115.0
   },
   "useDefaultConstraints": true
 }
