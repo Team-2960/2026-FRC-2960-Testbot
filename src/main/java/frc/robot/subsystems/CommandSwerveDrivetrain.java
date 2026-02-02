@@ -11,7 +11,6 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -48,7 +47,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
-import frc.robot.Util.CustomSwerveRequests.FieldCentricLookAtPoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -84,8 +82,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.linDeadband)
             .withRotationalDeadband(Constants.angDeadband)
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+            .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.FieldCentricFacingAngle gotoAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
             .withRotationalDeadband(Constants.angDeadband)
@@ -575,8 +572,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withOrbitPoint(FieldLayout.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
-            .withRadius(Meters.of(3))
-        );
+            .withRadius(Meters.of(2))
+        ).finallyDo(() -> applyRequest(() -> idleRequest));
     }
 
     /**
