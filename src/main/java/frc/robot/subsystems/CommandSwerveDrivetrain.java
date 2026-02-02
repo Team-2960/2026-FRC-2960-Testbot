@@ -11,6 +11,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -35,7 +36,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -47,6 +47,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricLookAtPoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -82,12 +84,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(Constants.linDeadband)
             .withRotationalDeadband(Constants.angDeadband)
-            .withDriveRequestType(DriveRequestType.Velocity);
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
 
     private final SwerveRequest.FieldCentricFacingAngle gotoAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
-            .withDeadband(Constants.linDeadband)
+            .withRotationalDeadband(Constants.angDeadband)
             .withHeadingPID(10, 0, 0)
             .withDriveRequestType(DriveRequestType.Velocity);
+
+
+    private final FieldCentricCircularOrbit orbitRequest = new FieldCentricCircularOrbit()
+        .withRadiusCorrectionPID(3, 0, 0)
+        .withHeadingPID(15, 0, 0)
+        .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
@@ -559,6 +568,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Rotation2d offset) {
 
         return lookAtPointCmd(xVel, yVel, FieldLayout.getHubCenter(), offset);
+    }
+
+    public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset){
+        return applyRequest(() -> orbitRequest
+            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withTravelVelocity(travelVel.get())
+            .withRotationalOffset(offset)
+            .withRadius(Meters.of(3))
+        );
     }
 
     /**

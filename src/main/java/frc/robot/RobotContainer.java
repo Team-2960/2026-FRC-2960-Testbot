@@ -155,12 +155,16 @@ public class RobotContainer {
         //                 slowRVelCtrl));
 
         // Track Goal
+        // driverCtrl.a().whileTrue(
+        //         drivetrain.lookAtPointCmd(
+        //                 fullXVelCtrl,
+        //                 fullYVelCtrl,
+        //                 FieldLayout.getHubCenter(),
+        //                 Rotation2d.fromDegrees(180)));
+
         driverCtrl.a().whileTrue(
-                drivetrain.lookAtPointCmd(
-                        fullXVelCtrl,
-                        fullYVelCtrl,
-                        FieldLayout.getHubCenter(),
-                        Rotation2d.fromDegrees(180)));
+                drivetrain.hubOrbitCommand(fullYVelCtrl, new Rotation2d())
+        );
 
         // Pose Reset
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(
