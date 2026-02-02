@@ -29,7 +29,7 @@ public class FieldLayout {
     public static final Distance hubBaseWidth = Inches.of(47);
     public static final Distance hubFunnelDiam = Inches.of(41.5);
 
-    public static final Distance blueHubCenterX = fieldCenterY.minus(hubXToCenterOffset);
+    public static final Distance blueHubCenterX = fieldCenterX.minus(hubXToCenterOffset);
     public static final Distance redHubCenterX = fieldCenterX.plus(hubXToCenterOffset);
 
     public static final Distance blueHubLeftY = fieldCenterY.plus(hubBaseWidth.div(2));
@@ -42,10 +42,10 @@ public class FieldLayout {
     public static final Distance redHubFront = fieldSizeX.minus(blueHubFront);
 
     public static final Translation2d blueHubCenter = new Translation2d(blueHubCenterX, fieldCenterY);
-    public static final Translation2d redHubCenter = new Translation2d(redHubCenterX, fieldCenterX);
+    public static final Translation2d redHubCenter = new Translation2d(redHubCenterX, fieldCenterY);
 
     public static final Translation2d blueHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
-    public static final Translation2d redHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
+    public static final Translation2d redHubCenterFront = new Translation2d(redHubFront, fieldCenterY);
 
     /**
      * Checks if the current alliance is red.
