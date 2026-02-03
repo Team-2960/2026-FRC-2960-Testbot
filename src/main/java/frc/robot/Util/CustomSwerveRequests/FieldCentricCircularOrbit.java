@@ -23,15 +23,34 @@ import edu.wpi.first.units.measure.LinearVelocity;
 
 public class FieldCentricCircularOrbit implements SwerveRequest{
     
-
+    /**
+     * The desired velocity to travel along the circle created around the orbital point using the radius.
+     * The travel velocity is eventually split into an X and Y Velocity to feed into the FieldCentric Request.
+     */
     public double TravelVelocity = 0;
 
+    /**
+     * The desired radius of the circle.
+     * Default value is 0 meters.
+     * This value must be set in all requests.
+     */
     public double Radius = 0;
 
+    /**
+     * The desired point for the robot to rotate around.
+     * Default point is made by a new Translation2d() at (0, 0).
+     */
     public Translation2d OrbitPoint = new Translation2d();
-
+    
+    /**
+     * The offset applied to the rotation of the robot.
+     */
     public Rotation2d RotationOffset = new Rotation2d();
 
+    /**
+     * The PID Controller used to keep the robot travelling along the circle.
+     * Values must be given for the orbital motion to work correctly.
+     */
     public PIDController RadiusCorrectionPID = new PIDController(0, 0, 0);
 
     /**
@@ -121,8 +140,6 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
         double calcVelX = travelVelX + radiusCorrectionVelX;
         double calcVelY = travelVelY + radiusCorrectionVelY;
 
-        System.out.println(calcAngle.getDegrees());
-
         return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
         .withDeadband(Deadband)
@@ -161,11 +178,22 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
             return this;
         }
 
+        /**
+         * Changes the velocity of the robot's travel along the circle.
+         * @param newVelocity The desired velocity for the robot to travel at in Meters Per Second.
+         * @return this object
+         */
         public FieldCentricCircularOrbit withTravelVelocity(double newVelocity){
             this.TravelVelocity = newVelocity;
             return this;
         }
 
+        /**
+         * Changes the velocity of the robot's travel along the circle.
+         * 
+         * @param newVelocity
+         * @return
+         */
         public FieldCentricCircularOrbit withTravelVelocity(LinearVelocity newVelocity){
             this.TravelVelocity = newVelocity.in(MetersPerSecond);
             return this;
