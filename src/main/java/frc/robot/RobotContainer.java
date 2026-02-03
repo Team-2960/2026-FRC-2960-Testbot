@@ -165,7 +165,7 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
-                drivetrain.hubOrbitCommand(fullYVelCtrl, new Rotation2d())
+                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180))
         );
 
         // Pose Reset

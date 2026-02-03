@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FieldCentricCircularOrbit implements SwerveRequest{
     
@@ -125,34 +126,47 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
 
     @Override
     public StatusCode apply(SwerveControlParameters parameters, SwerveModule<?, ?, ?>... modulesToApply) {
-        Pose2d curPose = parameters.currentPose;
-        Rotation2d calcAngle = curPose.getTranslation().minus(OrbitPoint).getAngle().plus(RotationOffset);
+        // 1. Account for Alliance Flipping
+        // If Red, we flip the X coordinate (and Y if the field isn't symmetrical)
 
-        Translation2d targetPoint = OrbitPoint.plus(new Translation2d(Radius * calcAngle.getCos(), Radius * calcAngle.getSin()));
+        Pose2d robotPose = parameters.currentPose;
 
-        double radiusCorrectionVelX = RadiusCorrectionPID.calculate(curPose.getX(), targetPoint.getX());
-        double radiusCorrectionVelY = RadiusCorrectionPID.calculate(curPose.getY(), targetPoint.getY());
+        Translation2d relativeVector = OrbitPoint.minus(robotPose.getTranslation());
+        double currentDistance = relativeVector.getNorm();
+        
+        // 2. Calculate the Unit Vectors
+        // Unit vector pointing FROM robot TO target (Radial)
+        Translation2d unitRadial = relativeVector.div(currentDistance);
+        // Unit vector pointing tangent to the circle (Tangential)
+        Translation2d unitTangential = new Translation2d(-unitRadial.getY(), unitRadial.getX());
 
-        double travelVelX = calcAngle.minus(Rotation2d.fromDegrees(90)).getCos() * TravelVelocity;
-        double travelVelY = calcAngle.minus(Rotation2d.fromDegrees(90)).getSin() * TravelVelocity;
+        // 3. Radial Velocity (Correction to stay on the radius)
+        // Positive kP moves us toward the circle if we are off
+        double radialMag = -RadiusCorrectionPID.calculate(currentDistance, Radius); // P-gain for distance correction
 
-        double calcVelX = (travelVelX + radiusCorrectionVelX) * (parameters.operatorForwardDirection.getDegrees() == 180 ? -1 : 1);
-        double calcVelY = (travelVelY + radiusCorrectionVelY) * (parameters.operatorForwardDirection.getDegrees() == 180 ? -1 : 1);;
+        // 4. Combine Vectors
+        double vx = (unitTangential.getX() * TravelVelocity) + (unitRadial.getX() * radialMag);
+        double vy = (unitTangential.getY() * TravelVelocity) + (unitRadial.getY() * radialMag);
+
+        // 5. Target Angle
+        // The robot faces the point. 
+        // Use targetPoint.minus(robotPose).getAngle()
+        Rotation2d targetAngle = relativeVector.getAngle().plus(RotationOffset);
 
         return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
         .withDeadband(Deadband)
         .withDesaturateWheelSpeeds(DesaturateWheelSpeeds)
         .withDriveRequestType(DriveRequestType)
-        .withForwardPerspective(ForwardPerspective)
+        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
         .withHeadingPID(HeadingController.getP(), HeadingController.getI(), HeadingController.getD())
         .withMaxAbsRotationalRate(MaxAbsRotationalRate)
         .withRotationalDeadband(RotationalDeadband)
         .withSteerRequestType(SteerRequestType)
-        .withTargetDirection(calcAngle)
+        .withTargetDirection(targetAngle)
         .withTargetRateFeedforward(TargetRateFeedforward)
-        .withVelocityX(calcVelX)
-        .withVelocityY(calcVelY)
+        .withVelocityX(vx)
+        .withVelocityY(vy)
         .apply(parameters, modulesToApply);
     }
 
