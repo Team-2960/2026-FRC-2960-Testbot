@@ -10,7 +10,6 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -137,8 +136,8 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
         double travelVelX = calcAngle.minus(Rotation2d.fromDegrees(90)).getCos() * TravelVelocity;
         double travelVelY = calcAngle.minus(Rotation2d.fromDegrees(90)).getSin() * TravelVelocity;
 
-        double calcVelX = travelVelX + radiusCorrectionVelX;
-        double calcVelY = travelVelY + radiusCorrectionVelY;
+        double calcVelX = (travelVelX + radiusCorrectionVelX) * (parameters.operatorForwardDirection.getDegrees() == 180 ? -1 : 1);
+        double calcVelY = (travelVelY + radiusCorrectionVelY) * (parameters.operatorForwardDirection.getDegrees() == 180 ? -1 : 1);;
 
         return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -113,6 +114,7 @@ public class RobotContainer {
 
         // Initialize drivetrain telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
+
     }
 
     /**
@@ -148,19 +150,19 @@ public class RobotContainer {
                         fullRVelCtrl));
 
         // Slow Drive Command
-        // driverCtrl.rightBumper().whileTrue(
-        //         drivetrain.getDriveCmd(
-        //                 slowXVelCtrl,
-        //                 slowYVelCtrl,
-        //                 slowRVelCtrl));
+        driverCtrl.rightBumper().whileTrue(
+                drivetrain.getDriveCmd(
+                        slowXVelCtrl,
+                        slowYVelCtrl,
+                        slowRVelCtrl));
 
         // Track Goal
-        // driverCtrl.a().whileTrue(
-        //         drivetrain.lookAtPointCmd(
-        //                 fullXVelCtrl,
-        //                 fullYVelCtrl,
-        //                 FieldLayout.getHubCenter(),
-        //                 Rotation2d.fromDegrees(180)));
+        driverCtrl.leftBumper().whileTrue(
+                drivetrain.lookAtPointCmd(
+                        fullXVelCtrl,
+                        fullYVelCtrl,
+                        FieldLayout.getHubCenter(),
+                        Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
                 drivetrain.hubOrbitCommand(fullYVelCtrl, new Rotation2d())
@@ -178,21 +180,33 @@ public class RobotContainer {
 
         // Drivetrain SysId Controls
         // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        testMode.and(driverCtrl.start()).and(driverCtrl.a()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        testMode.and(driverCtrl.start()).and(driverCtrl.b()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        testMode.and(driverCtrl.start()).and(driverCtrl.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        testMode.and(driverCtrl.start()).and(driverCtrl.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // // Note that each routine should be run exactly once in a single log.
+        // testMode.and(driverCtrl.start()).and(driverCtrl.a()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.b()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        //testMode.and(driverCtrl.start()).and(driverCtrl.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.x()).onTrue(shooter.sysIdQuasistatic(Direction.kForward));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.y()).onTrue(shooter.sysIdQuasistatic(Direction.kReverse));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.a()).onTrue(shooter.sysIdDynamic(Direction.kForward));
+        // testMode.and(driverCtrl.start()).and(driverCtrl.b()).onTrue(shooter.sysIdDynamic(Direction.kReverse));
+
+        Command sysIdCommandGroup = Commands.sequence(
+                shooter.sysIdQuasistatic(Direction.kForward),
+                shooter.sysIdQuasistatic(Direction.kReverse),
+                shooter.sysIdDynamic(Direction.kForward),
+                shooter.sysIdDynamic(Direction.kReverse));
+
+        testMode.and(driverCtrl.start()).onTrue(sysIdCommandGroup);
     }
 
     private void intakeBindings() {
-        driverCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
-        driverCtrl.leftTrigger(0.1).whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
+        operatorCtrl.leftTrigger(0.1).whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
+        operatorCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
     }
 
     private void shooterBindings(){
-        driverCtrl.rightTrigger(0.1).whileTrue(shooter.setVoltageCmd(Volts.of(6)));
-        driverCtrl.rightBumper().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
+        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(12)).alongWith(intake.setVoltageCmd(Constants.intakeInVolt)));
     }
 
     /**
