@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
@@ -44,7 +45,7 @@ public class ShooterWheel extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(null,
                     Volts.of(4),
-                    null,
+                    Seconds.of(5),
                     (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
