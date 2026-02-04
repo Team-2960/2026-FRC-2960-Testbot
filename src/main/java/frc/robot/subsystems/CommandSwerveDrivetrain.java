@@ -35,6 +35,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -570,12 +571,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return lookAtPointCmd(xVel, yVel, FieldLayout.getHubCenter(), offset);
     }
 
-    public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset){
+    public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Distance radius){
         return applyRequest(() -> orbitRequest
             .withOrbitPoint(FieldLayout.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
-            .withRadius(Meters.of(2))
+            .withRadius(radius)
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }
