@@ -1,5 +1,6 @@
 package frc.robot.Util.CustomSwerveRequests;
 
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -20,8 +21,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
-public class FieldCentricCircularOrbit implements SwerveRequest{
-    
+public class FieldCentricRestrictedRadius implements SwerveRequest{
     /**
      * The desired velocity to travel along the circle created around the orbital point using the radius.
      * The travel velocity is eventually split into an X and Y Velocity to feed into the FieldCentric Request.
@@ -51,6 +51,8 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
      * Values must be given for the orbital motion to work correctly.
      */
     public PIDController RadiusCorrectionPID = new PIDController(0, 0, 0);
+
+    public double RadiusTolerance = 0;
 
     /**
      * The desired direction to face.
@@ -118,7 +120,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
 
     private final FieldCentricFacingAngle m_fieldCentricFacingAngle = new FieldCentricFacingAngle();
 
-    public FieldCentricCircularOrbit(){
+    public FieldCentricRestrictedRadius(){
         HeadingController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -147,6 +149,8 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
         double vx = (unitTangential.getX() * TravelVelocity) + (unitRadial.getX() * radialMag);
         double vy = (unitTangential.getY() * TravelVelocity) + (unitRadial.getY() * radialMag);
 
+
+        
         // 5. Target Angle
         // The robot faces the point. 
         // Use targetPoint.minus(robotPose).getAngle()
@@ -184,7 +188,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param kD The differential coefficient; must be >= 0
          * @return this object
          */
-        public FieldCentricCircularOrbit withHeadingPID(double kP, double kI, double kD)
+        public FieldCentricRestrictedRadius withHeadingPID(double kP, double kI, double kD)
         {
             this.HeadingController.setPID(kP, kI, kD);
             return this;
@@ -195,7 +199,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newVelocity The desired velocity for the robot to travel at in Meters Per Second.
          * @return this object
          */
-        public FieldCentricCircularOrbit withTravelVelocity(double newVelocity){
+        public FieldCentricRestrictedRadius withTravelVelocity(double newVelocity){
             this.TravelVelocity = newVelocity;
             return this;
         }
@@ -206,53 +210,63 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newVelocity
          * @return
          */
-        public FieldCentricCircularOrbit withTravelVelocity(LinearVelocity newVelocity){
+        public FieldCentricRestrictedRadius withTravelVelocity(LinearVelocity newVelocity){
             this.TravelVelocity = newVelocity.in(MetersPerSecond);
             return this;
         }
 
-        public FieldCentricCircularOrbit withRadius(double radius){
+        public FieldCentricRestrictedRadius withRadius(double radius){
             this.Radius = radius;
             return this;
         }
         
-        public FieldCentricCircularOrbit withRadius(Distance radius){
+        public FieldCentricRestrictedRadius withRadius(Distance radius){
             this.Radius = radius.in(Meters);
             return this;
         }
 
-        public FieldCentricCircularOrbit withOrbitPoint(Translation2d point){
+        public FieldCentricRestrictedRadius withOrbitPoint(Translation2d point){
             this.OrbitPoint = point;
             return this;
         }
 
-        public FieldCentricCircularOrbit withOrbitPoint(Distance x, Distance y){
+        public FieldCentricRestrictedRadius withOrbitPoint(Distance x, Distance y){
             this.OrbitPoint = new Translation2d(x, y);
             return this;
         }
 
-        public FieldCentricCircularOrbit withOrbitPoint(double x, double y){
+        public FieldCentricRestrictedRadius withOrbitPoint(double x, double y){
             this.OrbitPoint = new Translation2d(x, y);
             return this;
         }
 
-        public FieldCentricCircularOrbit withRotationalOffset(Rotation2d offset){
+        public FieldCentricRestrictedRadius withRotationalOffset(Rotation2d offset){
             this.RotationOffset = offset;
             return this;
         }
 
-        public FieldCentricCircularOrbit withRotationalOffset(Angle offset){
+        public FieldCentricRestrictedRadius withRotationalOffset(Angle offset){
             this.RotationOffset = new Rotation2d(offset);
             return this;
         }
 
-        public FieldCentricCircularOrbit withRotationalOffset(double offset){
+        public FieldCentricRestrictedRadius withRotationalOffset(double offset){
             this.RotationOffset = new Rotation2d(offset);
             return this;
         }
 
-        public FieldCentricCircularOrbit withRadiusCorrectionPID(double kP, double kI, double kD){
+        public FieldCentricRestrictedRadius withRadiusCorrectionPID(double kP, double kI, double kD){
             RadiusCorrectionPID.setPID(kP, kI, kD);
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withRadiusTolerance(Distance tolerance){
+            this.RadiusTolerance = tolerance.in(Meters);
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withRadiusTolerance(double tolerance){
+            this.RadiusTolerance = tolerance;
             return this;
         }
 
@@ -266,7 +280,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newTargetDirection Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withTargetDirection(Rotation2d newTargetDirection) {
+        public FieldCentricRestrictedRadius withTargetDirection(Rotation2d newTargetDirection) {
             this.TargetDirection = newTargetDirection;
             return this;
         }
@@ -282,7 +296,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newTargetRateFeedforward Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withTargetRateFeedforward(double newTargetRateFeedforward) {
+        public FieldCentricRestrictedRadius withTargetRateFeedforward(double newTargetRateFeedforward) {
             this.TargetRateFeedforward = newTargetRateFeedforward;
             return this;
         }
@@ -297,7 +311,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newTargetRateFeedforward Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withTargetRateFeedforward(AngularVelocity newTargetRateFeedforward) {
+        public FieldCentricRestrictedRadius withTargetRateFeedforward(AngularVelocity newTargetRateFeedforward) {
             this.TargetRateFeedforward = newTargetRateFeedforward.in(RadiansPerSecond);
             return this;
         }
@@ -310,7 +324,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newDeadband Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withDeadband(double newDeadband) {
+        public FieldCentricRestrictedRadius withDeadband(double newDeadband) {
             this.Deadband = newDeadband;
             return this;
         }
@@ -323,7 +337,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newDeadband Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withDeadband(LinearVelocity newDeadband) {
+        public FieldCentricRestrictedRadius withDeadband(LinearVelocity newDeadband) {
             this.Deadband = newDeadband.in(MetersPerSecond);
             return this;
         }
@@ -336,7 +350,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newRotationalDeadband Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withRotationalDeadband(double newRotationalDeadband) {
+        public FieldCentricRestrictedRadius withRotationalDeadband(double newRotationalDeadband) {
             this.RotationalDeadband = newRotationalDeadband;
             return this;
         }
@@ -349,7 +363,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newRotationalDeadband Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withRotationalDeadband(AngularVelocity newRotationalDeadband) {
+        public FieldCentricRestrictedRadius withRotationalDeadband(AngularVelocity newRotationalDeadband) {
             this.RotationalDeadband = newRotationalDeadband.in(RadiansPerSecond);
             return this;
         }
@@ -363,7 +377,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newMaxAbsRotationalRate Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withMaxAbsRotationalRate(double newMaxAbsRotationalRate) {
+        public FieldCentricRestrictedRadius withMaxAbsRotationalRate(double newMaxAbsRotationalRate) {
             this.MaxAbsRotationalRate = newMaxAbsRotationalRate;
             return this;
         }
@@ -377,7 +391,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newMaxAbsRotationalRate Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withMaxAbsRotationalRate(AngularVelocity newMaxAbsRotationalRate) {
+        public FieldCentricRestrictedRadius withMaxAbsRotationalRate(AngularVelocity newMaxAbsRotationalRate) {
             this.MaxAbsRotationalRate = newMaxAbsRotationalRate.in(RadiansPerSecond);
             return this;
         }
@@ -391,7 +405,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newCenterOfRotation Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withCenterOfRotation(Translation2d newCenterOfRotation) {
+        public FieldCentricRestrictedRadius withCenterOfRotation(Translation2d newCenterOfRotation) {
             this.CenterOfRotation = newCenterOfRotation;
             return this;
         }
@@ -404,7 +418,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newDriveRequestType Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
+        public FieldCentricRestrictedRadius withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
             this.DriveRequestType = newDriveRequestType;
             return this;
         }
@@ -417,7 +431,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newSteerRequestType Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withSteerRequestType(SwerveModule.SteerRequestType newSteerRequestType) {
+        public FieldCentricRestrictedRadius withSteerRequestType(SwerveModule.SteerRequestType newSteerRequestType) {
             this.SteerRequestType = newSteerRequestType;
             return this;
         }
@@ -431,7 +445,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newDesaturateWheelSpeeds Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withDesaturateWheelSpeeds(boolean newDesaturateWheelSpeeds) {
+        public FieldCentricRestrictedRadius withDesaturateWheelSpeeds(boolean newDesaturateWheelSpeeds) {
             this.DesaturateWheelSpeeds = newDesaturateWheelSpeeds;
             return this;
         }
@@ -444,7 +458,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
          * @param newForwardPerspective Parameter to modify
          * @return this object
          */
-        public FieldCentricCircularOrbit withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
+        public FieldCentricRestrictedRadius withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
             this.ForwardPerspective = newForwardPerspective;
             return this;
         }
