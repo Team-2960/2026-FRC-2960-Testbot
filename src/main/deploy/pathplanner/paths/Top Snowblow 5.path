@@ -3,48 +3,57 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.9094999999999995,
-        "y": 6.0
+        "x": 5.662375,
+        "y": 2.1797727272727276
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.785102272727272,
-        "y": 6.371045454545454
+        "x": 7.888647727272726,
+        "y": 2.282840909090909
       },
       "isLocked": false,
-      "linkedName": "TopSnowblow1"
+      "linkedName": "EndSnowBlow4"
     },
     {
       "anchor": {
-        "x": 8.54828409090909,
-        "y": 5.776852272727273
+        "x": 8.939943181818181,
+        "y": 1.9014886363636365
       },
       "prevControl": {
-        "x": 8.936681653932412,
-        "y": 5.98249835207808
+        "x": 8.72864126348785,
+        "y": 2.3475704639498933
       },
       "nextControl": {
-        "x": 7.971102272727274,
-        "y": 5.4712499999999995
+        "x": 9.310988636363636,
+        "y": 1.1181704545454545
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.662375,
-        "y": 5.776852272727273
+        "x": 4.178193181818182,
+        "y": 0.5822159090909098
       },
       "prevControl": {
-        "x": 5.413509004870444,
-        "y": 5.753067477832709
+        "x": 5.538693181818181,
+        "y": 0.5409886363636371
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "EndSnowBlow1"
+      "linkedName": "EndSnowBlow5"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7066848567530709,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.6016371077762637,
+      "rotationDegrees": 90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -57,8 +66,8 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 0.0
+    "velocity": 2.0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Test Paths",

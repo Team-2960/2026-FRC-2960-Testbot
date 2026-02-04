@@ -206,7 +206,7 @@ public class RobotContainer {
 
     private void shooterBindings(){
         operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
-        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(12)).alongWith(intake.setVoltageCmd(Constants.intakeInVolt)));
+        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
     }
 
     /**
