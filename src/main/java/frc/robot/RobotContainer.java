@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.thethriftybot.server.CAN;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -61,20 +62,20 @@ public class RobotContainer {
     private final Indexer indexer = new Indexer(21, null, 1);
         
 
-    // Cameras
-    private final AprilTagPipeline leftCamera = new AprilTagPipeline(
-            drivetrain,
-            Constants.leftCameraSettings,
-            "LeftCamera",
-            "LeftCamera");
-    private final AprilTagPipeline rightCamera = new AprilTagPipeline(
-            drivetrain,
-            Constants.rightCameraSettings,
-            "RightCamera",
-            "RightCamera");
+//     // Cameras
+//     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
+//             drivetrain,
+//             Constants.leftCameraSettings,
+//             "LeftCamera",
+//             "LeftCamera");
+//     private final AprilTagPipeline rightCamera = new AprilTagPipeline(
+//             drivetrain,
+//             Constants.rightCameraSettings,
+//             "RightCamera",
+//             "RightCamera");
 
-    @SuppressWarnings("unused")
-    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+//     @SuppressWarnings("unused")
+//     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
     // Pathplanner
     SendableChooser<Command> autoChooser;
@@ -89,11 +90,11 @@ public class RobotContainer {
 
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
-            .mut_times(-driverCtrl.getLeftY());
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftY(), 0.05));
     private Supplier<LinearVelocity> fullYVelCtrl = () -> yVel.mut_replace(Constants.maxLinVel)
-            .mut_times(-driverCtrl.getLeftX());
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftX(), 0.05));
     private Supplier<AngularVelocity> fullRVelCtrl = () -> rVel.mut_replace(Constants.maxAngVel)
-            .mut_times(-driverCtrl.getRightX());
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getRightX(), 0.05));
 
     private Supplier<LinearVelocity> slowXVelCtrl = () -> xVel.mut_replace(Constants.slowdownLinVel)
             .mut_times(-driverCtrl.getLeftY());
@@ -165,7 +166,7 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
-                drivetrain.hubOrbitCommand(fullYVelCtrl, new Rotation2d())
+                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Meters.of(3))
         );
 
         // Pose Reset
@@ -206,7 +207,8 @@ public class RobotContainer {
 
     private void shooterBindings(){
         operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
-        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
     }
 
     /**
@@ -218,5 +220,4 @@ public class RobotContainer {
         SmartDashboard.putString("Current Command", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
-
 }

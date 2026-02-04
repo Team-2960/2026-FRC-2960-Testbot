@@ -35,9 +35,11 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -339,6 +341,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
     }
 
     private void startSimThread() {
@@ -567,13 +571,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return lookAtPointCmd(xVel, yVel, FieldLayout.getHubCenter(), offset);
     }
 
-    public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset){
+    public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Distance radius){
         return applyRequest(() -> orbitRequest
             .withOrbitPoint(FieldLayout.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
-            .withRadius(Meters.of(2))
-        ).finallyDo(() -> applyRequest(() -> idleRequest));
+            .withRadius(radius)
+        )
+        .finallyDo(() -> applyRequest(() -> idleRequest));
     }
 
     /**
