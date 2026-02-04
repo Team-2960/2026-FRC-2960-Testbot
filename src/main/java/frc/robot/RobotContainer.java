@@ -63,19 +63,19 @@ public class RobotContainer {
         
 
 //     // Cameras
-//     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
-//             drivetrain,
-//             Constants.leftCameraSettings,
-//             "LeftCamera",
-//             "LeftCamera");
-//     private final AprilTagPipeline rightCamera = new AprilTagPipeline(
-//             drivetrain,
-//             Constants.rightCameraSettings,
-//             "RightCamera",
-//             "RightCamera");
+    private final AprilTagPipeline leftCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.leftCameraSettings,
+            "LeftCamera",
+            "LeftCamera");
+    private final AprilTagPipeline rightCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.rightCameraSettings,
+            "RightCamera",
+            "RightCamera");
 
-//     @SuppressWarnings("unused")
-//     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+    @SuppressWarnings("unused")
+    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
     // Pathplanner
     SendableChooser<Command> autoChooser;
@@ -167,6 +167,10 @@ public class RobotContainer {
 
         driverCtrl.a().whileTrue(
                 drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Meters.of(3))
+        );
+
+        driverCtrl.b().whileTrue(
+                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Meters.of(3), Meters.of(1.75))
         );
 
         // Pose Reset

@@ -1,6 +1,5 @@
 package frc.robot.Util.CustomSwerveRequests;
 
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -33,7 +32,9 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
      * Default value is 0 meters.
      * This value must be set in all requests.
      */
-    public double Radius = 0;
+    public double MaxRadius = 0;
+
+    public double MinRadius = 0;
 
     /**
      * The desired point for the robot to rotate around.
@@ -53,6 +54,8 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
     public PIDController RadiusCorrectionPID = new PIDController(0, 0, 0);
 
     public double RadiusTolerance = 0;
+
+    public double RadiusVelocity = 0;
 
     /**
      * The desired direction to face.
@@ -143,7 +146,22 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
 
         // 3. Radial Velocity (Correction to stay on the radius)
         // Positive kP moves us toward the circle if we are off
-        double radialMag = -RadiusCorrectionPID.calculate(currentDistance, Radius); // P-gain for distance correction
+        double radialMag = -RadiusCorrectionPID.calculate(currentDistance, MaxRadius); // P-gain for distance correction
+
+        if (currentDistance < MaxRadius){
+            radialMag = RadiusVelocity;
+        } else if (currentDistance >= MaxRadius && RadiusVelocity > 0){
+            radialMag = RadiusVelocity;
+        } 
+        
+        if (currentDistance < MinRadius){
+            radialMag = -RadiusCorrectionPID.calculate(currentDistance, MinRadius);
+            
+            if (RadiusVelocity < 0){
+                radialMag = RadiusVelocity;
+            }
+        }
+
 
         // 4. Combine Vectors
         double vx = (unitTangential.getX() * TravelVelocity) + (unitRadial.getX() * radialMag);
@@ -215,13 +233,23 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
             return this;
         }
 
-        public FieldCentricRestrictedRadius withRadius(double radius){
-            this.Radius = radius;
+        public FieldCentricRestrictedRadius withMaxRadius(double radius){
+            this.MaxRadius = radius;
             return this;
         }
         
-        public FieldCentricRestrictedRadius withRadius(Distance radius){
-            this.Radius = radius.in(Meters);
+        public FieldCentricRestrictedRadius withMaxRadius(Distance radius){
+            this.MaxRadius = radius.in(Meters);
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withMinRadius(double radius){
+            this.MinRadius = radius;
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withMinRadius(Distance radius){
+            this.MinRadius = radius.in(Meters);
             return this;
         }
 
@@ -267,6 +295,16 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
 
         public FieldCentricRestrictedRadius withRadiusTolerance(double tolerance){
             this.RadiusTolerance = tolerance;
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withRadiusVelocity(double velocity){
+            this.RadiusVelocity = velocity;
+            return this;
+        }
+
+        public FieldCentricRestrictedRadius withRadiusVelocity(LinearVelocity velocity){
+            this.RadiusVelocity = velocity.in(MetersPerSecond);
             return this;
         }
 

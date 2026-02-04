@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -93,6 +94,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
 
     private final FieldCentricCircularOrbit orbitRequest = new FieldCentricCircularOrbit()
+        .withRadiusCorrectionPID(3, 0, 0)
+        .withHeadingPID(15, 0, 0)
+        .withDriveRequestType(DriveRequestType.Velocity);
+
+    private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
         .withHeadingPID(15, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
@@ -577,6 +583,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withRadius(radius)
+        )
+        .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+    
+    public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
+        return applyRequest(() -> orbitRestricteRadiusRequest
+            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withTravelVelocity(travelVel.get())
+            .withRotationalOffset(offset)
+            .withMaxRadius(maxRadius)
+            .withMinRadius(minRadius)
+            .withRadiusVelocity(radialVelocity.get())
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }
