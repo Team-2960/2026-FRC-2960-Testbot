@@ -7,8 +7,11 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -64,6 +67,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.004; // 4 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    private Orchestra orchestra = new Orchestra();
 
     private Optional<SwerveRequest> currentRequest = Optional.empty();
 
@@ -206,6 +211,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configurePathFinder();
         // Configure AutoBuilder last
         configureAutoBuilder();
+        configureOrchestra();
     }
 
     /**
@@ -235,6 +241,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configurePathFinder();
         // Configure AutoBuilder last
         configureAutoBuilder();
+        configureOrchestra();
     }
 
     /**
@@ -279,6 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configurePathFinder();
         // Configure AutoBuilder last
         configureAutoBuilder();
+        configureOrchestra();
     }
 
     /**
@@ -452,6 +460,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private void configurePathFinder(){
         Pathfinding.setPathfinder(new LocalADStar());
         CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+    }
+
+    private void configureOrchestra(){
+        // for (int i = 0; i < 4; i ++){
+        //     TalonFX targetMotor = this.getModule(i).getDriveMotor();
+        //     orchestra.addInstrument(targetMotor);
+        //     targetMotor.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
+        // }
+        
+        // orchestra.loadMusic("cry_for_me_ironmouse.chrp");
+        // orchestra.play();
     }
 
     @AutoLogOutput

@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
@@ -45,7 +46,7 @@ public class Indexer extends SubsystemBase {
             new SysIdRoutine.Config(null,
                     Volts.of(4),
                     null,
-                    (state) -> SignalLogger.writeString("state", state.toString())),
+                    (state) -> Logger.recordOutput("state", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,

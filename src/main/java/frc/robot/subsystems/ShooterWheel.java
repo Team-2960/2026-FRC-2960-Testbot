@@ -8,13 +8,19 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -24,11 +30,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldLayout;
+import pabeles.concurrency.IntOperatorTask.Min;
 
 public class ShooterWheel extends SubsystemBase {
     // Motors
@@ -37,9 +45,11 @@ public class ShooterWheel extends SubsystemBase {
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    private final VelocityDutyCycle velCtrl = new VelocityDutyCycle(0);
 
     private final CommandSwerveDrivetrain drivetrain;
+
+    private Orchestra orchestra = new Orchestra();
 
     // SysId
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
@@ -78,17 +88,26 @@ public class ShooterWheel extends SubsystemBase {
                 .withSensorToMechanismRatio(gearRatio);
 
         motorConfig.Slot0
-                .withKP(0.0)
+                .withKP(0.0072604)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(0.0)
-                .withKV(0.0)
-                .withKA(0.0);
+                .withKS(0.17961)
+                .withKV(0.11937)
+                .withKA(0.011308);
 
         motorLeader.getConfigurator().apply(motorConfig);
 
         motorLeader.getConfigurator().apply(motorConfig);
         motorFollower.setControl(new Follower(motorLeaderID, MotorAlignmentValue.Opposed));
+
+        motorLeader.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
+        motorFollower.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
+
+        orchestra.addInstrument(motorLeader);
+        orchestra.addInstrument(motorFollower);
+        orchestra.loadMusic("Doom.chrp");
+        orchestra.play();
+    
     }
 
     /**
@@ -109,6 +128,11 @@ public class ShooterWheel extends SubsystemBase {
     @AutoLogOutput
     public AngularVelocity getVelocity() {
         return motorLeader.getVelocity().getValue();
+    }
+
+    @AutoLogOutput
+    public double getRPM(){
+        return motorLeader.getVelocity().getValue().in(Rotations.per(Minute));
     }
 
     /**
@@ -215,6 +239,10 @@ public class ShooterWheel extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
+
+        if (DriverStation.isEnabled()){
+            orchestra.stop();
+        }
     }
 
     /**

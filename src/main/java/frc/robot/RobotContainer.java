@@ -201,7 +201,7 @@ public class RobotContainer {
                 shooter.sysIdDynamic(Direction.kForward),
                 shooter.sysIdDynamic(Direction.kReverse));
 
-        testMode.and(driverCtrl.start()).onTrue(sysIdCommandGroup);
+        driverCtrl.start().onTrue(sysIdCommandGroup);
     }
 
     private void intakeBindings() {
@@ -211,6 +211,7 @@ public class RobotContainer {
 
     private void shooterBindings(){
         operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Rotations.per(Minute).of(1500)));
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
     }
