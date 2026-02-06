@@ -13,13 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Empty Fuel to Top"
+            "pathName": "Bottom Empty Fuel to Middle"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Top Full Fuel over Bump"
+            "pathName": "Bottom Middle Neutral Zone over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Bump to Shoot"
           }
         }
       ]

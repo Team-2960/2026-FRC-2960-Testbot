@@ -21,6 +21,12 @@
           "data": {
             "pathName": "Bottom Middle Neutral Zone under Trench"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Trench to Shoot"
+          }
         }
       ]
     }

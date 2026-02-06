@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 3.2,
-        "y": 0.6
+        "x": 3.3845681818181816,
+        "y": 0.6440568181818185
       },
       "prevControl": {
-        "x": 2.9501855938941497,
-        "y": 0.5903686708092225
+        "x": 3.134753775712331,
+        "y": 0.634425488991041
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BottomTrenchAllianceZoneFullFuel"
+      "linkedName": "BottomTrenchEndPoint"
     }
   ],
   "rotationTargets": [

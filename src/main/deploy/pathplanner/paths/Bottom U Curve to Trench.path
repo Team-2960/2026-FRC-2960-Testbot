@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 3.178431818181818,
+        "x": 3.3845681818181816,
         "y": 0.6440568181818185
       },
       "prevControl": {
-        "x": 4.036717674742167,
-        "y": 0.8500430044854594
+        "x": 4.291568181818182,
+        "y": 0.6234431818181827
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BottomTrenchEndPoint"
     }
   ],
   "rotationTargets": [
@@ -67,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 2.0,
-    "rotation": -115.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Test Paths",

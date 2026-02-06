@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Trench to Far Fuel"
+            "pathName": "Top Trench to Fuel"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Empty Fuel U Curve"
+            "pathName": "Top Empty Fuel to Middle"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": " Bottom U Curve to Bump"
+            "pathName": "Top Middle Neutral Zone under Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Trench to Shoot"
           }
         }
       ]

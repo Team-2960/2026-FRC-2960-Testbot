@@ -3,41 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.75465909090909,
-        "y": 2.15
+        "x": 3.405181818181818,
+        "y": 7.395022727272727
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.985228812524976,
-        "y": 2.0533687241418552
+        "x": 3.665835316764278,
+        "y": 7.455567367162589
       },
       "isLocked": false,
-      "linkedName": "BottomUCurveFullFuel"
+      "linkedName": "TopTrenchEndPoint"
     },
     {
       "anchor": {
-        "x": 3.3021136363636363,
-        "y": 2.6126590909090908
+        "x": 2.4260340909090905,
+        "y": 5.488261363636363
       },
       "prevControl": {
-        "x": 3.2674517666503786,
-        "y": 2.8602445403765047
+        "x": 2.5808707980950727,
+        "y": 5.684540741330003
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BottomBumpEndPoint"
+      "linkedName": "TopShootPoint"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.40654843110504807,
-      "rotationDegrees": 180.0
-    },
-    {
-      "waypointRelativePos": 0.7639836289222371,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -50,14 +41,14 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 2.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 142.56
   },
   "reversed": false,
   "folder": "Test Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -115.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

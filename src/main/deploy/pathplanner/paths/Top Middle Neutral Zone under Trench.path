@@ -20,34 +20,34 @@
         "y": 7.4
       },
       "prevControl": {
-        "x": 6.858035886750103,
-        "y": 7.136801808307745
+        "x": 7.022874999999999,
+        "y": 7.291954545454546
       },
       "nextControl": {
-        "x": 5.532316887607108,
-        "y": 7.4857875110507415
+        "x": 5.522655335176392,
+        "y": 7.431128605353882
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.45,
-        "y": 7.4
+        "x": 3.405181818181818,
+        "y": 7.395022727272727
       },
       "prevControl": {
-        "x": 3.695483615297098,
-        "y": 7.352694666044236
+        "x": 3.650665433478916,
+        "y": 7.347717393316963
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "TopTrenchEndPoint"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.9795361527967243,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
@@ -63,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Test Paths",

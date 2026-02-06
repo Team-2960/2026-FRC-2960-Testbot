@@ -123,7 +123,9 @@ public class RobotContainer {
      */
     private void initPathPlanner() {
 
-        NamedCommands.registerCommand("Intake Command", intake.setVoltageCmd(Constants.intakeInVolt));
+        NamedCommands.registerCommand("IntakeIN Command", intake.setVoltageCmd(Constants.intakeInVolt));
+        NamedCommands.registerCommand("ShooterWheel Command", shooter.setVelocityCmd(Rotations.per(Minute).of(1900)));
+        NamedCommands.registerCommand("IndexerIN Command", indexer.setVoltageCmd(Volts.of(12)));
 
         // Initialize Auton chooser
         autoChooser = AutoBuilder.buildAutoChooser();
