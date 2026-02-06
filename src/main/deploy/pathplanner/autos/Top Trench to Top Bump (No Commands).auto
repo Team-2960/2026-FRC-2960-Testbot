@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Trench to Fuel"
+            "pathName": "Top Trench to Fuel"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Empty Fuel to Middle"
+            "pathName": "Top Empty Fuel to Middle"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "pathName": "Top Middle Neutral Zone over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Bump to Shoot"
           }
         }
       ]

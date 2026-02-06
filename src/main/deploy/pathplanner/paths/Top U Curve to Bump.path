@@ -16,26 +16,22 @@
     },
     {
       "anchor": {
-        "x": 3.1475113636363634,
-        "y": 5.498568181818182
+        "x": 3.4257954545454545,
+        "y": 5.62225
       },
       "prevControl": {
-        "x": 3.1128494939231057,
-        "y": 5.746153631285596
+        "x": 3.391133584832197,
+        "y": 5.869835449467414
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "TopBumpEndPoint"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.4,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 0.8130968622100945,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -51,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 2.0,
-    "rotation": 130.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Test Paths",

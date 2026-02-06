@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Top Trench to Fuel"
+            "pathName": "Bottom Trench to Fuel"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Top Empty Fuel to Bottom"
+            "pathName": "Bottom Empty Fuel to Top"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Full Fuel over Bump"
+            "pathName": "Top Full Fuel over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Bump to Shoot"
           }
         }
       ]

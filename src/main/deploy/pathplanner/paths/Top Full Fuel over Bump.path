@@ -32,26 +32,22 @@
     },
     {
       "anchor": {
-        "x": 2.9826022727272727,
-        "y": 5.282125000000001
+        "x": 3.4257954545454545,
+        "y": 5.62225
       },
       "prevControl": {
-        "x": 3.2812056529700353,
-        "y": 5.712257164922861
+        "x": 4.085431818181818,
+        "y": 5.653170454545455
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopAllianceZoneBumpFullFuel"
+      "linkedName": "TopBumpEndPoint"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.9549795361527962,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.5961800818553895,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -67,7 +63,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 135.36964506184705
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Test Paths",

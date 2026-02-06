@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 3.4876363636363634,
-        "y": 7.4
+        "x": 3.405181818181818,
+        "y": 7.395022727272727
       },
       "prevControl": {
-        "x": 3.237821957530513,
-        "y": 7.390368670809223
+        "x": 3.1553674120759676,
+        "y": 7.38539139808195
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopAllianceZoneTrenchFullFuel"
+      "linkedName": "TopTrenchEndPoint"
     }
   ],
   "rotationTargets": [
@@ -62,7 +62,7 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 2.0,
     "rotation": 90.0
   },
   "reversed": false,
