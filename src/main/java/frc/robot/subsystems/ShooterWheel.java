@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -32,6 +33,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -45,7 +47,7 @@ public class ShooterWheel extends SubsystemBase {
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final VelocityDutyCycle velCtrl = new VelocityDutyCycle(0);
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
 
     private final CommandSwerveDrivetrain drivetrain;
 
@@ -56,11 +58,15 @@ public class ShooterWheel extends SubsystemBase {
             new SysIdRoutine.Config(null,
                     Volts.of(4),
                     Seconds.of(5),
-                    (state) -> SignalLogger.writeString("state", state.toString())),
+                    (state) -> SignalLogger.writeString("ShooterWheel", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,
                     this));
+                    
+    private final SysIdRoutine sysIdRoutine2 = new SysIdRoutine(
+        new SysIdRoutine.Config(null, Volts.of(2), Seconds.of(5)), 
+        new SysIdRoutine.Mechanism(this::setVoltage, this::sysIDLogging, this));
 
     /**
      * Constructor
@@ -88,12 +94,12 @@ public class ShooterWheel extends SubsystemBase {
                 .withSensorToMechanismRatio(gearRatio);
 
         motorConfig.Slot0
-                .withKP(0.0072604)
+                .withKP(0.005)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(0.17961)
-                .withKV(0.11937)
-                .withKA(0.011308);
+                .withKS(0.28683)
+                .withKV(0.11886)
+                .withKA(0.0067811);
 
         motorLeader.getConfigurator().apply(motorConfig);
 
@@ -105,9 +111,8 @@ public class ShooterWheel extends SubsystemBase {
 
         orchestra.addInstrument(motorLeader);
         orchestra.addInstrument(motorFollower);
-        orchestra.loadMusic("Doom.chrp");
-        orchestra.play();
-    
+        orchestra.loadMusic("cry_for_me_ironmouse2.chrp");
+        //orchestra.play();
     }
 
     /**
@@ -165,7 +170,7 @@ public class ShooterWheel extends SubsystemBase {
      * @param velocity target motor velocity
      */
     public void setVelocity(AngularVelocity velocity) {
-        motorLeader.setControl(velCtrl.withVelocity(velocity));
+        motorLeader.setControl(velCtrl.withVelocity(velocity).withAcceleration(RotationsPerSecondPerSecond.of(60)));
     }
 
     /**
@@ -220,7 +225,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.quasistatic(direction);
+        return sysIdRoutine2.quasistatic(direction);
     }
 
     /**
@@ -230,7 +235,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutine.dynamic(direction);
+        return sysIdRoutine2.dynamic(direction);
     }
 
     /**
@@ -262,5 +267,14 @@ public class ShooterWheel extends SubsystemBase {
     @AutoLogOutput
     public String getCommandString() {
         return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
+    }
+
+    //Logs System ID
+    private void sysIDLogging(SysIdRoutineLog log){
+        log.motor("ShooterWheel")
+            .voltage(getVoltage())
+            .current(motorLeader.getStatorCurrent().getValue())
+            .angularVelocity(getVelocity())
+            .angularPosition(motorLeader.getPosition().getValue());
     }
 }

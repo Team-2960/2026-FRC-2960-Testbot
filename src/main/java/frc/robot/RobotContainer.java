@@ -37,6 +37,7 @@ import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.subsystems.ShooterManagement;
 import frc.robot.subsystems.ShooterWheel;
 
 public class RobotContainer {
@@ -90,11 +91,11 @@ public class RobotContainer {
 
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftY(), 0.05));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftY(), 0.02));
     private Supplier<LinearVelocity> fullYVelCtrl = () -> yVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftX(), 0.05));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftX(), 0.02));
     private Supplier<AngularVelocity> fullRVelCtrl = () -> rVel.mut_replace(Constants.maxAngVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getRightX(), 0.05));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getRightX(), 0.02));
 
     private Supplier<LinearVelocity> slowXVelCtrl = () -> xVel.mut_replace(Constants.slowdownLinVel)
             .mut_times(-driverCtrl.getLeftY());
@@ -166,11 +167,15 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
-                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Meters.of(3))
+                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92))
         );
 
         driverCtrl.b().whileTrue(
-                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Meters.of(3), Meters.of(1.75))
+                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92), Meters.of(1.75))
+        );
+
+        driverCtrl.x().whileTrue(
+                drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2), Rotation2d.fromDegrees(90))
         );
 
         // Pose Reset
@@ -210,10 +215,24 @@ public class RobotContainer {
     }
 
     private void shooterBindings(){
+        
         operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
-        operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Rotations.per(Minute).of(1500)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Rotations.per(Minute).of(1900)));
+        //operatorCtrl.rightTrigger(0.1).whileTrue(hubNoHoodShotCmd(() -> Rotations.per(Minute).of(1900), Rotations.per(Minute).of(300), () -> Volts.of(12)));
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+    }
+
+    public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){
+        return Commands.parallel(
+            shooter.setVelocityCmd(shootVel),
+            Commands.either(
+                indexer.setVoltageCmd(indexerVolt.get()), 
+                indexer.setVoltageCmd(Volts.zero()), 
+                () -> (shooter.getVelocity().gte(shootVel.get().minus(velTolerance))) && (shootVel.get().plus(velTolerance).gt(shooter.getVelocity()))),
+        
+                Commands.run(() -> {System.out.println((shootVel.get().plus(velTolerance).gt(shooter.getVelocity())));}, drivetrain)
+        );
     }
 
     /**

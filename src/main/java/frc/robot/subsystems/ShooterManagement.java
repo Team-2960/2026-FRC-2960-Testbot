@@ -4,7 +4,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -103,6 +105,15 @@ public class ShooterManagement {
                         indexer.setVoltageCmd(Constants.indexerFeedVolt),
                         indexer.setVoltageCmd(Volts.zero()),
                         () -> isShooterReady() && isRobotAligned()));
+    }
+
+    public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){
+        return Commands.parallel(
+            shooterWheel.setVelocityCmd(shootVel),
+            Commands.either(indexer.setVoltageCmd(indexerVolt.get()), 
+            indexer.setVoltageCmd(Volts.zero()), 
+                () -> shooterWheel.getVelocity().gte(shootVel.get().minus(velTolerance)) && shootVel.get().plus(velTolerance).gt(shooterWheel.getVelocity()))
+        );
     }
 
     /**
