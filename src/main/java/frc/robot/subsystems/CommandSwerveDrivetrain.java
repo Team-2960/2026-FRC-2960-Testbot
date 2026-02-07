@@ -579,6 +579,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                 getPose2d().getTranslation().minus(target).getAngle().plus(offset)));
     }
 
+    public Command travelSetSpeedCmd(Supplier<LinearVelocity> xVel, Supplier<LinearVelocity> yVel, Rotation2d targetAngle){
+        return applyRequest(
+            () -> gotoAngleRequest
+                .withVelocityX(xVel.get())
+                .withVelocityY(yVel.get())
+                .withTargetDirection(targetAngle)
+        );
+    }
+
     /**
      * Creates a command to drive the drivetrain at field-centric linear velocities
      * and orient the robot toward the center of the current alliance hub
