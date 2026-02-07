@@ -27,6 +27,42 @@
           "data": {
             "pathName": "Top Bump to Shoot"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Shooting to Depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot to Shooting"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Shooting to Fuel Under Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Empty Fuel to Middle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Middle Neutral Zone over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Bump to Shoot"
+          }
         }
       ]
     }
