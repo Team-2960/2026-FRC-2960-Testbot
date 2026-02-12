@@ -27,6 +27,12 @@
           "data": {
             "pathName": "Bottom Bump to Shoot"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hub Orbit Command"
+          }
         }
       ]
     }

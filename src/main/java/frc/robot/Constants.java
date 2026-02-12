@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Util.AprilTagPipelineSettings;
@@ -44,6 +45,7 @@ public class Constants {
 
     // Shooter Constants
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
+    public static final Distance shootingDistance = Inches.of(92);
 
     public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
     public static final Angle shooterHoodTol = Degrees.of(2);
