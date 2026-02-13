@@ -9,19 +9,16 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -37,8 +34,8 @@ import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.FieldLayout;
-import pabeles.concurrency.IntOperatorTask.Min;
 
 public class ShooterWheel extends SubsystemBase {
     // Motors
@@ -46,8 +43,9 @@ public class ShooterWheel extends SubsystemBase {
     private final TalonFX motorFollower;
 
     // Motor Control Requests
-    private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    private final VoltageOut voltCtrl;
+    private final MotionMagicVelocityVoltage velVoltCtrl;
+    private final MotionMagicVelocityTorqueCurrentFOC velTorqueCtrl;
 
     private final CommandSwerveDrivetrain drivetrain;
 
@@ -63,10 +61,10 @@ public class ShooterWheel extends SubsystemBase {
                     this::setVoltage,
                     null,
                     this));
-                    
+
     private final SysIdRoutine sysIdRoutine2 = new SysIdRoutine(
-        new SysIdRoutine.Config(null, Volts.of(2), Seconds.of(5)), 
-        new SysIdRoutine.Mechanism(this::setVoltage, this::sysIDLogging, this));
+            new SysIdRoutine.Config(null, Volts.of(2), Seconds.of(5)),
+            new SysIdRoutine.Mechanism(this::setVoltage, this::sysIDLogging, this));
 
     /**
      * Constructor
@@ -88,12 +86,12 @@ public class ShooterWheel extends SubsystemBase {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         motorConfig.MotorOutput
-                .withNeutralMode(NeutralModeValue.Brake);
+                .withNeutralMode(NeutralModeValue.Coast);
 
         motorConfig.Feedback
                 .withSensorToMechanismRatio(gearRatio);
 
-        motorConfig.Slot0
+        motorConfig.Slot0 // Voltage Control FF & PID
                 .withKP(0.005)
                 .withKI(0.0)
                 .withKD(0.0)
@@ -101,18 +99,46 @@ public class ShooterWheel extends SubsystemBase {
                 .withKV(0.11886)
                 .withKA(0.0067811);
 
-        motorLeader.getConfigurator().apply(motorConfig);
+        motorConfig.Slot1 // Torque FOC Control FF & PID
+                .withKP(0.005)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(0.28683)
+                .withKV(0)
+                .withKA(0);
+
+        motorConfig.MotionMagic
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(400))
+                .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Seconds).of(4000));
 
         motorLeader.getConfigurator().apply(motorConfig);
+
         motorFollower.setControl(new Follower(motorLeaderID, MotorAlignmentValue.Opposed));
 
-        motorLeader.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
-        motorFollower.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
+        // Configure Requests
+        voltCtrl = new VoltageOut(0.0)
+                .withEnableFOC(true);
 
-        orchestra.addInstrument(motorLeader);
-        orchestra.addInstrument(motorFollower);
-        orchestra.loadMusic("cry_for_me_ironmouse2.chrp");
-        //orchestra.play();
+        velVoltCtrl = new MotionMagicVelocityVoltage(0)
+                .withEnableFOC(true)
+                .withAcceleration(Constants.shooterMaxAccel)
+                .withSlot(0);
+
+        velTorqueCtrl = new MotionMagicVelocityTorqueCurrentFOC(0)
+                .withAcceleration(Constants.shooterMaxAccel)
+                .withSlot(1);
+
+        /**
+         * motorLeader.getConfigurator().apply(new
+         * AudioConfigs().withAllowMusicDurDisable(true));
+         * motorFollower.getConfigurator().apply(new
+         * AudioConfigs().withAllowMusicDurDisable(true));
+         * 
+         * orchestra.addInstrument(motorLeader);
+         * orchestra.addInstrument(motorFollower);
+         * orchestra.loadMusic("cry_for_me_ironmouse2.chrp");
+         * //orchestra.play();
+         */
     }
 
     /**
@@ -135,8 +161,13 @@ public class ShooterWheel extends SubsystemBase {
         return motorLeader.getVelocity().getValue();
     }
 
+    /**
+     * Gets the current velocity in RPM
+     * 
+     * @return current velocity in RPM
+     */
     @AutoLogOutput
-    public double getRPM(){
+    public double getRPM() {
         return motorLeader.getVelocity().getValue().in(Rotations.per(Minute));
     }
 
@@ -148,11 +179,25 @@ public class ShooterWheel extends SubsystemBase {
      *         False otherwise
      */
     public boolean atVelocity(AngularVelocity tol) {
-        return motorLeader.getAppliedControl() == velCtrl &&
-                MathUtil.isNear(
-                        velCtrl.Velocity,
-                        getVelocity().in(RotationsPerSecond),
-                        tol.in(RotationsPerSecond));
+        boolean result = false;
+
+        // Check if voltage velocity is running
+        if (motorLeader.getAppliedControl() == velVoltCtrl) {
+            result = MathUtil.isNear(
+                    velVoltCtrl.Velocity,
+                    getVelocity().in(RotationsPerSecond),
+                    tol.in(RotationsPerSecond));
+        }
+
+        // Check if torque velocity
+        if (motorLeader.getAppliedControl() == velTorqueCtrl) {
+            result = MathUtil.isNear(
+                    velTorqueCtrl.Velocity,
+                    getVelocity().in(RotationsPerSecond),
+                    tol.in(RotationsPerSecond));
+        }
+
+        return result;
     }
 
     /**
@@ -165,12 +210,24 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
-     * Sets the target motor velocity
+     * Sets the target motor velocity. Voltage control is enabled by default.
      * 
      * @param velocity target motor velocity
      */
     public void setVelocity(AngularVelocity velocity) {
-        motorLeader.setControl(velCtrl.withVelocity(velocity).withAcceleration(RotationsPerSecondPerSecond.of(60)));
+        setVelocity(velocity, false);
+    }
+
+    /**
+     * Sets the target motor velocity
+     * 
+     * @param velocity   target motor velocity
+     * @param torqueCtrl Set to true for torque control, false for voltage control
+     */
+    public void setVelocity(AngularVelocity velocity, boolean torqueCtrl) {
+        ControlRequest request = torqueCtrl ? velTorqueCtrl.withVelocity(velocity) : velVoltCtrl.withVelocity(velocity);
+
+        motorLeader.setControl(request);
     }
 
     /**
@@ -186,26 +243,48 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
-     * Creates a new command to run the intake at a set target velocity
+     * Creates a new command to run the intake at a set target velocity. Defaults to voltage control.
      * 
      * @param volts target velocity
      * @return new command to run the intake at a set target velocity
      */
     public Command setVelocityCmd(AngularVelocity velocity) {
-        return this.runEnd(
-                () -> setVelocity(velocity),
-                () -> setVoltage(Volts.zero()));
+        return setVelocityCmd(velocity, false);
     }
 
     /**
      * Creates a new command to run the intake at a set target velocity
      * 
      * @param volts target velocity
+     * @param torqueCtrl Set to true for torque control, false for voltage control
+     * @return new command to run the intake at a set target velocity
+     */
+    public Command setVelocityCmd(AngularVelocity velocity, boolean torqueCtrl) {
+        return this.runEnd(
+                () -> setVelocity(velocity, torqueCtrl),
+                () -> setVoltage(Volts.zero()));
+    }
+
+    /**
+     * Creates a new command to run the intake at a set target velocity. Defaults to voltage control.
+     * 
+     * @param volts target velocity
      * @return new command to run the intake at a set target velocity
      */
     public Command setVelocityCmd(Supplier<AngularVelocity> velocity) {
+        return setVelocityCmd(velocity, false);
+    }
+
+    /**
+     * Creates a new command to run the intake at a set target velocity
+     * 
+     * @param volts target velocity
+     * @param torqueCtrl Set to true for torque control, false for voltage control
+     * @return new command to run the intake at a set target velocity
+     */
+    public Command setVelocityCmd(Supplier<AngularVelocity> velocity, boolean torqueCtrl) {
         return this.runEnd(
-                () -> setVelocity(velocity.get()),
+                () -> setVelocity(velocity.get(), torqueCtrl),
                 () -> setVoltage(Volts.zero()));
     }
 
@@ -245,7 +324,7 @@ public class ShooterWheel extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
 
-        if (DriverStation.isEnabled()){
+        if (DriverStation.isEnabled()) {
             orchestra.stop();
         }
     }
@@ -269,12 +348,12 @@ public class ShooterWheel extends SubsystemBase {
         return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
     }
 
-    //Logs System ID
-    private void sysIDLogging(SysIdRoutineLog log){
+    // Logs System ID
+    private void sysIDLogging(SysIdRoutineLog log) {
         log.motor("ShooterWheel")
-            .voltage(getVoltage())
-            .current(motorLeader.getStatorCurrent().getValue())
-            .angularVelocity(getVelocity())
-            .angularPosition(motorLeader.getPosition().getValue());
+                .voltage(getVoltage())
+                .current(motorLeader.getStatorCurrent().getValue())
+                .angularVelocity(getVelocity())
+                .angularPosition(motorLeader.getPosition().getValue());
     }
 }
