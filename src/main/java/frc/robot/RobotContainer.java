@@ -36,6 +36,7 @@ import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.RevIndexer;
 import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.ShooterManagement;
 import frc.robot.subsystems.ShooterWheel;
@@ -60,7 +61,7 @@ public class RobotContainer {
             Constants.intakeGearRatio);
 
     private final ShooterWheel shooter = new ShooterWheel(31, 32, CANBus.roboRIO(), 1, drivetrain);
-    private final Indexer indexer = new Indexer(21, null, 1);
+    private final Indexer indexer = new Indexer(41, CANBus.roboRIO(), .2);
         
 
 //     // Cameras

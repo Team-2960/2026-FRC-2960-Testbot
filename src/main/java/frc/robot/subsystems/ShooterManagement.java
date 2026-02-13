@@ -14,7 +14,7 @@ import frc.robot.Constants;
 public class ShooterManagement {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final Indexer indexer;
+    private final RevIndexer indexer;
     private final ShooterWheel shooterWheel;
     private final ShooterHood shooterHood;
     private final Shaker shaker;
@@ -26,7 +26,7 @@ public class ShooterManagement {
      * @param shooterWheel shooter wheel subsystem instance
      * @param shooterHood  shooter hood subsystem instance
      */
-    public ShooterManagement(CommandSwerveDrivetrain drivetrain, Indexer indexer, ShooterWheel shooterWheel,
+    public ShooterManagement(CommandSwerveDrivetrain drivetrain, RevIndexer indexer, ShooterWheel shooterWheel,
             ShooterHood shooterHood, Shaker shaker) {
         this.drivetrain = drivetrain;
         this.indexer = indexer;
