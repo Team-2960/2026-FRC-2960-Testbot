@@ -211,8 +211,8 @@ public class RobotContainer {
     }
 
     private void intakeBindings() {
-        operatorCtrl.leftTrigger(0.1).whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
-        operatorCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
+        operatorCtrl.leftTrigger(0.1).whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
+        operatorCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeOutVolt));
     }
 
     private void shooterBindings(){
