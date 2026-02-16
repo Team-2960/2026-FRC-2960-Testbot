@@ -26,19 +26,14 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,26 +43,49 @@ import frc.robot.Constants;
 import frc.robot.FieldLayout;
 
 public class ShooterWheel extends SubsystemBase {
+
+    /**
+     * Class for controlling the shooter speed from the dashboard
+     */
+    public class ShooterWheelTest implements Sendable {
+
+        private double velRPM = 0;
+
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            // TODO Auto-generated method stub
+            builder.addDoubleProperty("Shooter Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
+        }
+
+        /**
+         * Gets a command to control the shooter from 
+         * @return
+         */
+        public Command getCommand() {
+            return setTorqueVelocityCmd(()-> Rotations.per(Minute).of(velRPM));
+        }
+        
+    }
+
     // Motors
     private final TalonFX motorLeader;
     private final TalonFX motorFollower;
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0).withEnableFOC(true);
-    private final MotionMagicVelocityVoltage velCtrl =
-         new MotionMagicVelocityVoltage(0)
-         .withAcceleration(Constants.shooterMaxAccel)
-         .withEnableFOC(true)
-         .withSlot(0);
-    private final MotionMagicVelocityTorqueCurrentFOC torqueCtrl = 
-        new MotionMagicVelocityTorqueCurrentFOC(0)
-        .withAcceleration(Constants.shooterMaxAccel)
-        .withSlot(1);
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
+            .withAcceleration(Constants.shooterMaxAccel)
+            .withEnableFOC(true)
+            .withSlot(0);
+    private final MotionMagicVelocityTorqueCurrentFOC torqueCtrl = new MotionMagicVelocityTorqueCurrentFOC(0)
+            .withAcceleration(Constants.shooterMaxAccel)
+            .withSlot(1);
 
-    private final TorqueCurrentFOC currentCtrl = 
-        new TorqueCurrentFOC(0);
+    private final TorqueCurrentFOC currentCtrl = new TorqueCurrentFOC(0);
 
     private final CommandSwerveDrivetrain drivetrain;
+
+    private final ShooterWheelTest shooterWheelTest = new ShooterWheelTest();
 
     private Orchestra orchestra = new Orchestra();
 
@@ -82,10 +100,10 @@ public class ShooterWheel extends SubsystemBase {
                     this::setVoltage,
                     null,
                     this));
-                    
+
     private final SysIdRoutine sysIdRoutine2 = new SysIdRoutine(
-        new SysIdRoutine.Config(null, Volts.of(2), Seconds.of(5)), 
-        new SysIdRoutine.Mechanism(this::setVoltage, this::sysIDLogging, this));
+            new SysIdRoutine.Config(null, Volts.of(2), Seconds.of(5)),
+            new SysIdRoutine.Mechanism(this::setVoltage, this::sysIDLogging, this));
 
     private final SysIdRoutine sysIdRoutine3 = new SysIdRoutine(
             new SysIdRoutine.Config(null,
@@ -98,9 +116,6 @@ public class ShooterWheel extends SubsystemBase {
                     this));
 
     private SysIdRoutine currentSysIdRoutine = sysIdRoutine3;
-
-    double shooterVel;
-
 
     /**
      * Constructor
@@ -126,7 +141,7 @@ public class ShooterWheel extends SubsystemBase {
 
         motorConfig.Feedback
                 .withSensorToMechanismRatio(gearRatio);
-        
+
         motorConfig.MotionMagic.withMotionMagicJerk(Constants.shooterMaxAccel.in(RotationsPerSecondPerSecond) * 10);
 
         motorConfig.Slot0
@@ -136,7 +151,7 @@ public class ShooterWheel extends SubsystemBase {
                 .withKS(0.28683)
                 .withKV(0.11886)
                 .withKA(0.0067811);
-        
+
         motorConfig.Slot1
                 .withKP(12)
                 .withKI(0.0)
@@ -156,8 +171,10 @@ public class ShooterWheel extends SubsystemBase {
         orchestra.addInstrument(motorLeader);
         orchestra.addInstrument(motorFollower);
         orchestra.loadMusic("cry_for_me_ironmouse2.chrp");
-        //orchestra.play();
-        SmartDashboard.putNumber("Test Shoot Vel", 0);
+        // orchestra.play();
+        
+        // Setup Shooter Testing
+        SmartDashboard.putData(shooterWheelTest);
     }
 
     /**
@@ -176,7 +193,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return
      */
     @AutoLogOutput
-    public Current getStatorCurrent(){
+    public Current getStatorCurrent() {
         return motorLeader.getStatorCurrent().getValue();
     }
 
@@ -186,7 +203,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return
      */
     @AutoLogOutput
-    public Current getSupplyCurrent(){
+    public Current getSupplyCurrent() {
         return motorLeader.getSupplyCurrent().getValue();
     }
 
@@ -206,13 +223,12 @@ public class ShooterWheel extends SubsystemBase {
      * @return current acceleration of the motor
      */
     @AutoLogOutput
-    public AngularAcceleration getAcceleration(){
+    public AngularAcceleration getAcceleration() {
         return motorLeader.getAcceleration().getValue();
     }
-    
 
     @AutoLogOutput
-    public double getRPM(){
+    public double getRPM() {
         double rpm = motorLeader.getVelocity().getValue().in(Rotations.per(Minute));
         SignalLogger.writeDouble("ShooterWheel RPM", rpm);
         return rpm;
@@ -251,16 +267,16 @@ public class ShooterWheel extends SubsystemBase {
         motorLeader.setControl(velCtrl.withVelocity(velocity));
     }
 
-
     /**
-     * Sets the target motor velocity 
+     * Sets the target motor velocity
+     * 
      * @param velocity target motor velocity
      */
-    public void setTorqueCurrentVel(AngularVelocity velocity){
+    public void setTorqueCurrentVel(AngularVelocity velocity) {
         motorLeader.setControl(torqueCtrl.withVelocity(velocity));
     }
 
-    public void setSysIdCurrent(Voltage voltage){
+    public void setSysIdCurrent(Voltage voltage) {
         motorLeader.setControl(currentCtrl.withOutput(voltage.in(Volts)));
     }
 
@@ -300,8 +316,16 @@ public class ShooterWheel extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
-    public Command setTestVelCmd(){
-        return setVelocityCmd(() -> Rotations.per(Minute).of(shooterVel));
+    /**
+     * Creates a new command to run the intake at a set target velocity
+     * 
+     * @param volts target velocity
+     * @return new command to run the intake at a set target velocity
+     */
+    public Command setTorqueVelocityCmd(AngularVelocity velocity) {
+        return this.runEnd(
+                () -> setTorqueCurrentVel(velocity),
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -346,16 +370,23 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
+     * Creates a new test command
+     * @return
+     */
+    public Command getTestCommand() {
+        return shooterWheelTest.getCommand();
+    }
+
+    /**
      * Update shooter RPM on dashboard
      */
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
 
-        if (DriverStation.isEnabled()){
+        if (DriverStation.isEnabled()) {
             orchestra.stop();
         }
-        shooterVel = SmartDashboard.getNumber("Test Shoot Vel", 0);        
     }
 
     /**
@@ -377,12 +408,12 @@ public class ShooterWheel extends SubsystemBase {
         return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
     }
 
-    //Logs System ID
-    private void sysIDLogging(SysIdRoutineLog log){
+    // Logs System ID
+    private void sysIDLogging(SysIdRoutineLog log) {
         log.motor("ShooterWheel")
-            .voltage(getVoltage())
-            .current(motorLeader.getStatorCurrent().getValue())
-            .angularVelocity(getVelocity())
-            .angularPosition(motorLeader.getPosition().getValue());
+                .voltage(getVoltage())
+                .current(motorLeader.getStatorCurrent().getValue())
+                .angularVelocity(getVelocity())
+                .angularPosition(motorLeader.getPosition().getValue());
     }
 }

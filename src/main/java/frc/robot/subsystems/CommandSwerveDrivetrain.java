@@ -129,7 +129,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
@@ -165,7 +164,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * See the documentation of SwerveRequest.SysIdSwerveRotation for info on
      * importing the log to SysId.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     /* This is in radians per second², but SysId only supports "volts per second" */
@@ -184,9 +182,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     },
                     null,
                     this));
-
-    /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -312,25 +307,63 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
+     * Runs the SysId Quasistatic test for Translation in the given direction 
      *
      * @param direction Direction of the SysId Quasistatic test
      * @return Command to run
      */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.quasistatic(direction);
+    public Command sysIdTranslationQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineTranslation.quasistatic(direction);
     }
 
     /**
-     * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
+     * Runs the SysId Dynamic test for Translation in the given direction 
      *
-     * @param direction Direction of the SysId Dynamic test
+     * @param direction Direction of the SysId Quasistatic test
      * @return Command to run
      */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.dynamic(direction);
+    public Command sysIdTranslationDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineTranslation.dynamic(direction);
+    }
+
+    /**
+     * Runs the SysId Quasistatic test for steer in the given direction 
+     *
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdSteerQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineSteer.quasistatic(direction);
+    }
+
+    /**
+     * Runs the SysId Dynamic test for steer in the given direction 
+     *
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdSteerDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineSteer.dynamic(direction);
+    }
+    
+    /**
+     * Runs the SysId Quasistatic test for rotation in the given direction 
+     *
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdRotationQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineRotation.quasistatic(direction);
+    }
+
+    /**
+     * Runs the SysId Dynamic test for rotation in the given direction 
+     *
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdRotationDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineRotation.dynamic(direction);
     }
 
     @Override

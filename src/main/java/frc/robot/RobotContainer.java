@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.CommandSelector;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
@@ -58,9 +58,8 @@ public class RobotContainer {
 
     private final ShooterWheel shooter = new ShooterWheel(31, 32, TunerConstants.kCANBus, 1, drivetrain);
     private final Indexer indexer = new Indexer(41, TunerConstants.kCANBus, .2);
-        
 
-//     // Cameras
+    // // Cameras
     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
             drivetrain,
             Constants.leftCameraSettings,
@@ -101,6 +100,35 @@ public class RobotContainer {
     private Supplier<AngularVelocity> slowRVelCtrl = () -> rVel.mut_replace(Constants.slowdownAngVel)
             .mut_times(-driverCtrl.getRightX());
 
+    // Test Command Lists
+    private final CommandSelector drivetrainTestCmds = new CommandSelector()
+        .addEntry("SysID Translation Quasistatic Forward", drivetrain.sysIdTranslationQuasistatic(Direction.kForward))
+        .addEntry("SysID Translation Quasistatic Reverse", drivetrain.sysIdTranslationQuasistatic(Direction.kReverse))
+        .addEntry("SysID Translation Dynamic Forward", drivetrain.sysIdTranslationDynamic(Direction.kForward))
+        .addEntry("SysID Translation Dynamic Forward", drivetrain.sysIdTranslationDynamic(Direction.kReverse))
+        .addEntry("SysID Steer Quasistatic Forward", drivetrain.sysIdSteerQuasistatic(Direction.kForward))
+        .addEntry("SysID Steer Quasistatic Reverse", drivetrain.sysIdSteerQuasistatic(Direction.kReverse))
+        .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kForward))
+        .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kReverse))
+        .addEntry("SysID Rotation Quasistatic Forward", drivetrain.sysIdRotationQuasistatic(Direction.kForward))
+        .addEntry("SysID Rotation Quasistatic Reverse", drivetrain.sysIdRotationQuasistatic(Direction.kReverse))
+        .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kForward))
+        .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kReverse))
+        .sendToDashboard("Drivetrain Test Commands");
+
+    private final CommandSelector shooterTestCmds = new CommandSelector()
+        .addEntry("SysID Quasistatic Forward", shooter.sysIdQuasistatic(Direction.kForward))
+        .addEntry("SysID Quasistatic Reverse", shooter.sysIdQuasistatic(Direction.kReverse))
+        .addEntry("SysID Dynamic Forward", shooter.sysIdDynamic(Direction.kForward))
+        .addEntry("SysID Dynamic Reverse", shooter.sysIdDynamic(Direction.kReverse))
+        .addEntry("SysID Full", Commands.sequence(
+                shooter.sysIdQuasistatic(Direction.kForward),
+                shooter.sysIdQuasistatic(Direction.kReverse),
+                shooter.sysIdDynamic(Direction.kForward),
+                shooter.sysIdDynamic(Direction.kReverse)))
+        .addEntry("Shooter Speed Test", shooter.getTestCommand())
+        .sendToDashboard("Shooter Test Commands");
+
     /**
      * Constructor
      */
@@ -124,8 +152,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("IntakeIN Command", intake.setVoltageCmd(Constants.intakeInVolt));
         NamedCommands.registerCommand("ShooterWheel Command", shooter.setVelocityCmd(Rotations.per(Minute).of(1900)));
         NamedCommands.registerCommand("IndexerIN Command", indexer.setVoltageCmd(Volts.of(12)));
-        NamedCommands.registerCommand("Hub Orbit Command", drivetrain.hubOrbitCommand(() -> MetersPerSecond.zero(), Rotation2d.fromDegrees(180), Constants.shootingDistance));
-
+        NamedCommands.registerCommand("Hub Orbit Command", drivetrain.hubOrbitCommand(() -> MetersPerSecond.zero(),
+                Rotation2d.fromDegrees(180), Constants.shootingDistance));
 
         // Initialize Auton chooser
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -168,16 +196,15 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
-                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92))
-        );
+                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
 
         driverCtrl.b().whileTrue(
-                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Inches.of(142), Meters.of(1.75))
-        );
+                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
+                        Inches.of(142), Meters.of(1.75)));
 
         driverCtrl.x().whileTrue(
-                drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2), Rotation2d.fromDegrees(90))
-        );
+                drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
+                        Rotation2d.fromDegrees(90)));
 
         // Pose Reset
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(
@@ -189,25 +216,8 @@ public class RobotContainer {
         // Idle motors when disabled
         RobotModeTriggers.disabled().whileTrue(drivetrain.idleCmd());
 
-        // Drivetrain SysId Controls
-        // Run SysId routines when holding back/start and X/Y.
-        // // Note that each routine should be run exactly once in a single log.
-        // testMode.and(driverCtrl.start()).and(driverCtrl.a()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.b()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        //testMode.and(driverCtrl.start()).and(driverCtrl.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.x()).onTrue(shooter.sysIdQuasistatic(Direction.kForward));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.y()).onTrue(shooter.sysIdQuasistatic(Direction.kReverse));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.a()).onTrue(shooter.sysIdDynamic(Direction.kForward));
-        // testMode.and(driverCtrl.start()).and(driverCtrl.b()).onTrue(shooter.sysIdDynamic(Direction.kReverse));
-
-        Command sysIdCommandGroup = Commands.sequence(
-                shooter.sysIdQuasistatic(Direction.kForward),
-                shooter.sysIdQuasistatic(Direction.kReverse),
-                shooter.sysIdDynamic(Direction.kForward),
-                shooter.sysIdDynamic(Direction.kReverse));
-
-        driverCtrl.start().onTrue(sysIdCommandGroup);
+        // Drivetrain test Controls
+        testMode.and(driverCtrl.a()).whileTrue(drivetrainTestCmds.runCommandCmd());
     }
 
     private void intakeBindings() {
@@ -215,32 +225,32 @@ public class RobotContainer {
         operatorCtrl.leftBumper().whileTrue(intake.setVoltageCmd(Constants.intakeInVolt));
     }
 
-    private void shooterBindings(){
-        
+    private void shooterBindings() {
+
         operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(12)));
         AngularVelocity shooterVel = Rotations.per(Minute).of(1700);
         operatorCtrl.rightTrigger(0.1).whileTrue(shooter.setTorqueVelocityCmd(() -> shooterVel));
-        //operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Constants.shootVelocity));
-        //operatorCtrl.rightTrigger(0.1).whileTrue(hubNoHoodShotCmd(() -> Rotations.per(Minute).of(1900), Rotations.per(Minute).of(300), () -> Volts.of(12)));
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
-        operatorCtrl.x().whileTrue(shooter.setTestVelCmd());
-        // operatorCtrl.povUp().onTrue(shooter.sysIdQuasistatic(Direction.kForward));
-        // operatorCtrl.povDown().onTrue(shooter.sysIdQuasistatic(Direction.kReverse));
-        // operatorCtrl.povRight().onTrue(shooter.sysIdDynamic(Direction.kForward));
-        // operatorCtrl.povLeft().onTrue(shooter.sysIdDynamic(Direction.kReverse));
+
+        // Test Bindings
+        testMode.and(operatorCtrl.a()).whileTrue(shooterTestCmds.runCommandCmd());
+
     }
 
-    public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){
+    public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance,
+            Supplier<Voltage> indexerVolt) {
         return Commands.parallel(
-            shooter.setVelocityCmd(shootVel),
-            Commands.either(
-                indexer.setVoltageCmd(indexerVolt.get()), 
-                indexer.setVoltageCmd(Volts.zero()), 
-                () -> (shooter.getVelocity().gte(shootVel.get().minus(velTolerance))) && (shootVel.get().plus(velTolerance).gt(shooter.getVelocity()))),
-        
-                Commands.run(() -> {System.out.println((shootVel.get().plus(velTolerance).gt(shooter.getVelocity())));}, drivetrain)
-        );
+                shooter.setVelocityCmd(shootVel),
+                Commands.either(
+                        indexer.setVoltageCmd(indexerVolt.get()),
+                        indexer.setVoltageCmd(Volts.zero()),
+                        () -> (shooter.getVelocity().gte(shootVel.get().minus(velTolerance)))
+                                && (shootVel.get().plus(velTolerance).gt(shooter.getVelocity()))),
+
+                Commands.run(() -> {
+                    System.out.println((shootVel.get().plus(velTolerance).gt(shooter.getVelocity())));
+                }, drivetrain));
     }
 
     /**
