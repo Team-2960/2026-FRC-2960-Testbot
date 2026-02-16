@@ -174,7 +174,7 @@ public class ShooterWheel extends SubsystemBase {
         // orchestra.play();
         
         // Setup Shooter Testing
-        SmartDashboard.putData(shooterWheelTest);
+        SmartDashboard.putData("Shooter Wheel Test" ,shooterWheelTest);
     }
 
     /**
@@ -242,9 +242,23 @@ public class ShooterWheel extends SubsystemBase {
      *         False otherwise
      */
     public boolean atVelocity(AngularVelocity tol) {
-        return motorLeader.getAppliedControl() == velCtrl &&
+        SmartDashboard.putNumber("Shot Tolerance (RPS)", tol.in(RotationsPerSecond));
+        SmartDashboard.putNumber("Shot Velocity (RPS)", getVelocity().in(RotationsPerSecond));
+        SmartDashboard.putNumber("Shot Target (RPS)", torqueCtrl.Velocity);
+
+        boolean isNearVel = MathUtil.isNear(
+                        torqueCtrl.Velocity,
+                        getVelocity().in(RotationsPerSecond),
+                        tol.in(RotationsPerSecond));
+
+        boolean isTorqueCtrl = motorLeader.getAppliedControl() == torqueCtrl;
+
+        SmartDashboard.putBoolean("Shot isTorqueCtrl", isTorqueCtrl);
+        SmartDashboard.putBoolean("Shot isNearVel", isNearVel);
+
+        return motorLeader.getAppliedControl() == torqueCtrl &&
                 MathUtil.isNear(
-                        velCtrl.Velocity,
+                        torqueCtrl.Velocity,
                         getVelocity().in(RotationsPerSecond),
                         tol.in(RotationsPerSecond));
     }
@@ -346,7 +360,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return new command to set the shooter for shooting at the hub
      */
     public Command hubShotCmd() {
-        return setVelocityCmd(this::calcHubShotSpeed);
+        return setTorqueVelocityCmd(this::calcHubShotSpeed);
     }
 
     /**
@@ -398,9 +412,7 @@ public class ShooterWheel extends SubsystemBase {
     private AngularVelocity calcHubShotSpeed() {
         Distance hubDist = FieldLayout.getHubDist(drivetrain.getPose2d().getTranslation());
 
-        // TODO Implement Formula for target shooter wheel speed
-
-        return RotationsPerSecond.zero();
+        return Constants.shooterWheelTable.get(hubDist);
     }
 
     @AutoLogOutput

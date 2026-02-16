@@ -35,6 +35,7 @@ import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.IntakeRoller;
+import frc.robot.subsystems.ShooterManagement;
 import frc.robot.subsystems.ShooterWheel;
 
 public class RobotContainer {
@@ -58,6 +59,7 @@ public class RobotContainer {
 
     private final ShooterWheel shooter = new ShooterWheel(31, 32, TunerConstants.kCANBus, 1, drivetrain);
     private final Indexer indexer = new Indexer(41, TunerConstants.kCANBus, .2);
+    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer,shooter,null);
 
     // // Cameras
     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
@@ -200,7 +202,7 @@ public class RobotContainer {
 
         driverCtrl.b().whileTrue(
                 drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
-                        Inches.of(142), Meters.of(1.75)));
+                        Inches.of(158), Meters.of(1.75)));
 
         driverCtrl.x().whileTrue(
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
@@ -227,14 +229,14 @@ public class RobotContainer {
 
     private void shooterBindings() {
 
-        operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.rightBumper().whileTrue(shooter.hubShotCmd());
         AngularVelocity shooterVel = Rotations.per(Minute).of(1700);
-        operatorCtrl.rightTrigger(0.1).whileTrue(shooter.setTorqueVelocityCmd(() -> shooterVel));
+        operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
         // Test Bindings
-        testMode.and(operatorCtrl.a()).whileTrue(shooterTestCmds.runCommandCmd());
+        testMode.and(operatorCtrl.back()).whileTrue(shooterTestCmds.runCommandCmd());
 
     }
 

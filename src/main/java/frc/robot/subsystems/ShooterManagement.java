@@ -14,10 +14,9 @@ import frc.robot.Constants;
 public class ShooterManagement {
 
     private final CommandSwerveDrivetrain drivetrain;
-    private final RevIndexer indexer;
+    private final Indexer indexer;
     private final ShooterWheel shooterWheel;
     private final ShooterHood shooterHood;
-    private final Shaker shaker;
 
     /**
      * Constructor
@@ -26,13 +25,12 @@ public class ShooterManagement {
      * @param shooterWheel shooter wheel subsystem instance
      * @param shooterHood  shooter hood subsystem instance
      */
-    public ShooterManagement(CommandSwerveDrivetrain drivetrain, RevIndexer indexer, ShooterWheel shooterWheel,
-            ShooterHood shooterHood, Shaker shaker) {
+    public ShooterManagement(CommandSwerveDrivetrain drivetrain, Indexer indexer, ShooterWheel shooterWheel,
+            ShooterHood shooterHood) {
         this.drivetrain = drivetrain;
         this.indexer = indexer;
         this.shooterWheel = shooterWheel;
         this.shooterHood = shooterHood;
-        this.shaker = shaker;
     }
 
     /**
@@ -78,11 +76,8 @@ public class ShooterManagement {
     public Command hubShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                shooterHood.hubShotCmd(),
-                Commands.either(
-                        indexer.runShooterFeed(),
-                        indexer.stopShooterFeed(),
-                        this::isShooterReady));
+                //shooterHood.hubShotCmd(),
+                indexer.autoIndex(this:: isShooterReady));
     }
 
     /**
@@ -122,7 +117,8 @@ public class ShooterManagement {
      * @return true if the shooter is ready to shoot, false otherwise
      */
     private boolean isShooterReady() {
-        return shooterWheel.atVelocity(Constants.shooterWheelTol) && shooterHood.atPosition(Constants.shooterHoodTol);
+        return shooterWheel.atVelocity(Constants.shooterWheelTol);
+        //&& shooterHood.atPosition(Constants.shooterHoodTol);
     }
 
     /**

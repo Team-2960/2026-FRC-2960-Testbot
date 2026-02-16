@@ -2,8 +2,10 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Revolution;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -22,6 +24,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -31,6 +34,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Util.AprilTagPipelineSettings;
+import frc.robot.Util.ShotSpeedTable;
 import frc.robot.generated.TunerConstants;
 
 public class Constants {
@@ -56,6 +60,13 @@ public class Constants {
     public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
     public static final Angle shooterHoodTol = Degrees.of(2);
     public static final Angle shotAngleTol = Degrees.of(2);
+
+    public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
+            .addEntry(Meters.of(1.7369), Revolution.per(Minute).of(1700))
+            .addEntry(Meters.of(2.1828), Revolution.per(Minute).of(1800))
+            .addEntry(Meters.of(2.5179), Revolution.per(Minute).of(1850))
+            .addEntry(Meters.of(3.1897), Revolution.per(Minute).of(2000))
+            .addEntry(Meters.of(3.6278), Revolution.per(Minute).of(2050));
 
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);

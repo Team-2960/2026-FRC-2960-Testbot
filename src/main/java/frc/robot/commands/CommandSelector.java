@@ -38,7 +38,7 @@ public class CommandSelector extends SubsystemBase{
          */
         @Override
         public void end(boolean interrupted) {
-            command.cancel();
+            CommandScheduler.getInstance().cancel(command);
         }
     }
 

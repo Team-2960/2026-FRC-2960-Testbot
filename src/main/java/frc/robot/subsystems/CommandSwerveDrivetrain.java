@@ -376,7 +376,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * mid-match.
          * Otherwise, only check and apply the operator perspective if the DS is
          * disabled.
-         * This ensures driving behavior doesn't change until an explicit disable event
+         * This ensures driving behavior doesn't ch\][ange until an explicit disable event
          * occurs during testing.
          */
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
@@ -390,7 +390,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
-        SmartDashboard.putNumber("Distance From Hub", orbitRestricteRadiusRequest.getTargetDistance().in(Meters));
+        SmartDashboard.putNumber("Distance From Hub", FieldLayout.getHubDist(getPose2d().getTranslation()).in(Meters));
     }
 
     private void startSimThread() {
