@@ -11,8 +11,6 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.thethriftybot.server.CAN;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,9 +34,7 @@ import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.RevIndexer;
 import frc.robot.subsystems.IntakeRoller;
-import frc.robot.subsystems.ShooterManagement;
 import frc.robot.subsystems.ShooterWheel;
 
 public class RobotContainer {
@@ -57,11 +53,11 @@ public class RobotContainer {
 
     private final IntakeRoller intake = new IntakeRoller(
             Constants.IntakeMotorID,
-            CANBus.roboRIO(),
+            TunerConstants.kCANBus,
             Constants.intakeGearRatio);
 
-    private final ShooterWheel shooter = new ShooterWheel(31, 32, CANBus.roboRIO(), 1, drivetrain);
-    private final Indexer indexer = new Indexer(41, CANBus.roboRIO(), .2);
+    private final ShooterWheel shooter = new ShooterWheel(31, 32, TunerConstants.kCANBus, 1, drivetrain);
+    private final Indexer indexer = new Indexer(41, TunerConstants.kCANBus, .2);
         
 
 //     // Cameras
@@ -176,7 +172,7 @@ public class RobotContainer {
         );
 
         driverCtrl.b().whileTrue(
-                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92), Meters.of(1.75))
+                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180), Inches.of(142), Meters.of(1.75))
         );
 
         driverCtrl.x().whileTrue(
@@ -221,11 +217,18 @@ public class RobotContainer {
 
     private void shooterBindings(){
         
-        operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(4)));
-        operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Rotations.per(Minute).of(1900)));
+        operatorCtrl.rightBumper().whileTrue(shooter.setVoltageCmd(Volts.of(12)));
+        AngularVelocity shooterVel = Rotations.per(Minute).of(1700);
+        operatorCtrl.rightTrigger(0.1).whileTrue(shooter.setTorqueVelocityCmd(() -> shooterVel));
+        //operatorCtrl.rightTrigger(.1).whileTrue(shooter.setVelocityCmd(Constants.shootVelocity));
         //operatorCtrl.rightTrigger(0.1).whileTrue(hubNoHoodShotCmd(() -> Rotations.per(Minute).of(1900), Rotations.per(Minute).of(300), () -> Volts.of(12)));
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.x().whileTrue(shooter.setTestVelCmd());
+        // operatorCtrl.povUp().onTrue(shooter.sysIdQuasistatic(Direction.kForward));
+        // operatorCtrl.povDown().onTrue(shooter.sysIdQuasistatic(Direction.kReverse));
+        // operatorCtrl.povRight().onTrue(shooter.sysIdDynamic(Direction.kForward));
+        // operatorCtrl.povLeft().onTrue(shooter.sysIdDynamic(Direction.kReverse));
     }
 
     public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){

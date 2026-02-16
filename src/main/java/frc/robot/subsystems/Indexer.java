@@ -16,6 +16,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -95,6 +96,26 @@ public class Indexer extends SubsystemBase {
     @AutoLogOutput
     public Voltage getVoltage() {
         return motor.getMotorVoltage().getValue();
+    }
+
+    /**
+     * Gets the current voltage of the intake
+     * 
+     * @return
+     */
+    @AutoLogOutput
+    public Current getStatorCurrent(){
+        return motor.getStatorCurrent().getValue();
+    }
+
+    /**
+     * Gets the current voltage of the intake
+     * 
+     * @return
+     */
+    @AutoLogOutput
+    public Current getSupplyCurrent(){
+        return motor.getSupplyCurrent().getValue();
     }
 
     /**

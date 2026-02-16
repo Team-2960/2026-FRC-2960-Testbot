@@ -7,7 +7,7 @@ import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -50,9 +50,6 @@ public class Constants {
     public static final int IndexMotorID = 999;
 
     // Shooter Constants
-    public static final AngularAcceleration shooterMaxAccel = RotationsPerSecondPerSecond.of(400);
-    public static final Velocity<AngularAccelerationUnit> shooterMaxJerk = RotationsPerSecondPerSecond.per(Seconds).of(4000);
-
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
     public static final Distance shootingDistance = Inches.of(92);
 
@@ -61,10 +58,8 @@ public class Constants {
     public static final Angle shotAngleTol = Degrees.of(2);
 
 
-    public static final double ShooterShootingVelocity = 0;
-    public static final double IndexerShootingVelocity = 0;
-    public static final double ShooterChargeVelocity = 0;
-    public static final double IndexerChargeVelocity = 0;
+    public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
+    public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Indexer Constants
     public static final Voltage indexerFeedVolt = Volts.of(12);

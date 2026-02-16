@@ -27,6 +27,8 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
      */
     public double TravelVelocity = 0;
 
+    public double distance = 0;
+
     /**
      * The desired radius of the circle.
      * Default value is 0 meters.
@@ -137,6 +139,9 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
 
         Translation2d relativeVector = OrbitPoint.minus(robotPose.getTranslation());
         double currentDistance = relativeVector.getNorm();
+
+        //Value used for telemetry
+        distance = currentDistance;
         
         // 2. Calculate the Unit Vectors
         // Unit vector pointing FROM robot TO target (Radial)
@@ -499,5 +504,9 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
         public FieldCentricRestrictedRadius withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
             this.ForwardPerspective = newForwardPerspective;
             return this;
+        }
+
+        public Distance getTargetDistance(){
+            return Meters.of(distance);
         }
 }

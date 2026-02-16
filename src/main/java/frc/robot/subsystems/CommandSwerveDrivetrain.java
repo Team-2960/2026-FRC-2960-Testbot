@@ -357,6 +357,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
+        SmartDashboard.putNumber("Distance From Hub", orbitRestricteRadiusRequest.getTargetDistance().in(Meters));
     }
 
     private void startSimThread() {
