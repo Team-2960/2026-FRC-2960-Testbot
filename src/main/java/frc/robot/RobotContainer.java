@@ -57,8 +57,8 @@ public class RobotContainer {
             TunerConstants.kCANBus,
             Constants.intakeGearRatio);
 
-    private final ShooterWheel shooter = new ShooterWheel(31, 32, TunerConstants.kCANBus, 1, drivetrain);
-    private final Indexer indexer = new Indexer(41, TunerConstants.kCANBus, .2);
+    private final ShooterWheel shooter = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 1, drivetrain);
+    private final Indexer indexer = new Indexer(Constants.IndexMotorID, TunerConstants.kCANBus, .2);
     private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer,shooter,null);
 
     // // Cameras

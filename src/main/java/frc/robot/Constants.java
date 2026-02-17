@@ -48,10 +48,10 @@ public class Constants {
     public static final CANBus canivoreBus = new CANBus("canivore");
 
     // Motor IDs
-    public static final int shooterMotorLID = 999;
-    public static final int shooterMotorRID = 999;
+    public static final int shooterMotorLeaderID = 31;
+    public static final int shooterMotorFollowerID = 32;
     public static final int IntakeMotorID = 19;
-    public static final int IndexMotorID = 999;
+    public static final int IndexMotorID = 41;
 
     // Shooter Constants
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
