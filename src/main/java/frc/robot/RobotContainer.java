@@ -202,7 +202,7 @@ public class RobotContainer {
 
         driverCtrl.b().whileTrue(
                 drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
-                        Inches.of(158), Meters.of(1.75)));
+                        Inches.of(147), Meters.of(1.75)));
 
         driverCtrl.x().whileTrue(
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),

@@ -42,7 +42,7 @@ public class Constants {
     public static final LinearVelocity maxLinVel = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2); 
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
-    public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(.5);
+    public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);
 
     public static final CANBus rioBus = CANBus.roboRIO();
     public static final CANBus canivoreBus = new CANBus("canivore");
@@ -82,8 +82,9 @@ public class Constants {
     public static final Voltage intakeOutVolt = Volts.of(-12.0);
 
     // Drivetrain Constants
-    public static final LinearVelocity linDeadband = maxLinVel.times(.1); 
-    public static final AngularVelocity angDeadband = maxAngVel.times(.1);
+    public static final LinearVelocity linDeadband = maxLinVel.times(.07); 
+    public static final AngularVelocity angDeadband = maxAngVel.times(.07
+    );
 
     // Camera Constants
     public static final Transform3d leftCameraOffsets = new Transform3d(
