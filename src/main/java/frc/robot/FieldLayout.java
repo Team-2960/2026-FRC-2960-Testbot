@@ -47,6 +47,26 @@ public class FieldLayout {
     public static final Translation2d blueHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
     public static final Translation2d redHubCenterFront = new Translation2d(redHubFront, fieldCenterY);
 
+    //Tower Dimensions
+    public static final Distance towerXToCenterOffset = Inches.of(300.985);
+    public static final Distance towerYToCenterOffset = Inches.of(11.38);
+    public static final Distance towerBaseWidth = Inches.of(45);
+
+    public static final Distance blueTowerCenterX = fieldCenterX.minus(towerXToCenterOffset);
+    public static final Distance redTowerCenterX = fieldCenterX.plus(towerXToCenterOffset);
+
+    public static final Distance blueTowerYOffset = fieldCenterY.minus(towerYToCenterOffset);
+
+    public static final Distance redTowerYOffset = fieldCenterY.plus(towerYToCenterOffset);
+
+    public static final Distance blueTowerFront = startLineToWallOffset.plus(startLineWidth);
+    public static final Distance redTowerFront = fieldSizeX.minus(blueTowerFront);
+    
+    public static final Translation2d blueTowerCenter = new Translation2d(blueTowerCenterX, blueTowerYOffset);
+    public static final Translation2d redTowerCenter = new Translation2d(redTowerCenterX, redTowerYOffset);
+
+    public static final Translation2d blueTowerCenterFront = new Translation2d(blueTowerFront, blueTowerYOffset);
+    public static final Translation2d redTowerCenterFront = new Translation2d(redTowerFront, redTowerYOffset);
     /**
      * Checks if the current alliance is red.
      * 
@@ -96,5 +116,28 @@ public class FieldLayout {
      */
     public static Distance getHubDist(Translation2d position) {
         return Meters.of(position.getDistance(FieldLayout.getHubCenter()));
+    }
+
+        public static Translation2d getTowerCenter() {
+        return isRedAlliance() ? redTowerCenter : blueTowerCenter;
+    }
+
+    /**
+     * Gets the front center of the tower for the current alliance
+     * 
+     * @return front center of the tower for the current alliance. Defaults to blue if
+     *         alliance is not set.
+     */
+    public static Translation2d getTowerCenterFront() {
+        return isRedAlliance() ? redTowerCenterFront : blueTowerCenterFront;
+    }
+
+    /**
+     * Calculates the distance to the current alliance tower from a given position
+     * @param position  position to check to distance of
+     * @return  distance to the current alliance tower
+     */
+    public static Distance getTowerDist(Translation2d position) {
+        return Meters.of(position.getDistance(FieldLayout.getTowerCenter()));
     }
 }

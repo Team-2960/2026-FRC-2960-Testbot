@@ -52,6 +52,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -102,6 +103,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .withRadiusCorrectionPID(3, 0, 0)
         .withHeadingPID(15, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
+
+    private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint();
+    
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
@@ -645,6 +649,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withRadius(radius)
+        )
+        .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
+    public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset){
+        return applyRequest(() -> goToRequest
+            .withTargetPoint(FieldLayout.getTowerCenter())
+            .withHeadingPID(15, 0, 0)
+            .withTranslationPID(5, 0, 0)
+            .withTravelVelocity(6)
+            .withRotationalOffset(offset)
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }

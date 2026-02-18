@@ -208,6 +208,10 @@ public class RobotContainer {
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
                         Rotation2d.fromDegrees(90)));
 
+        driverCtrl.y().whileTrue(
+                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0))
+        );
+
         // Pose Reset
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(
                 () -> drivetrain.resetPose(
