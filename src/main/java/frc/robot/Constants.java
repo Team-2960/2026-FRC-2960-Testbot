@@ -74,6 +74,7 @@ public class Constants {
 
     // Indexer Constants
     public static final Voltage indexerFeedVolt = Volts.of(12);
+    public static final AngularAcceleration indexerMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Intake Constants
     public static final double intakeGearRatio = 1;
