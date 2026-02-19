@@ -653,9 +653,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }
 
-    public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset){
+    public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset){
         return applyRequest(() -> goToRequest
-            .withTargetPoint(FieldLayout.getTowerCenter())
+            .withTargetPoint(FieldLayout.getTowerCenter().plus(PosOffset))
             .withHeadingPID(15, 0, 0)
             .withTranslationPID(5, 0, 0)
             .withTravelVelocity(6)

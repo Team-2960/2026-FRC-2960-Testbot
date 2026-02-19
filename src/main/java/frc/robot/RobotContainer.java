@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
@@ -208,8 +209,12 @@ public class RobotContainer {
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
                         Rotation2d.fromDegrees(90)));
 
-        driverCtrl.y().whileTrue(
-                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0))
+        driverCtrl.leftTrigger(.1).whileTrue(
+                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0),new Translation2d(Inches.zero() ,Inches.of(-40)))
+        );
+
+          driverCtrl.rightTrigger(.1).whileTrue(
+                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.zero() ,Inches.of(40)))
         );
 
         // Pose Reset
