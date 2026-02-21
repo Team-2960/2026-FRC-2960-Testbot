@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Minutes;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -10,16 +9,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -38,8 +30,8 @@ public class RevIndexer extends SubsystemBase {
     private final SparkFlex motor;
 
     // Motor Control Requests
-    private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    //private final VoltageOut voltCtrl = new VoltageOut(0.0);
+    //private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(

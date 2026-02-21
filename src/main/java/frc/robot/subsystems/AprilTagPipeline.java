@@ -155,8 +155,6 @@ public class AprilTagPipeline extends SubsystemBase {
         var unreadResults = camera.getAllUnreadResults();
         aprilTagSeen = false;
         
-        int[] intList = {1, 2, 3, 4, 5};
-
         for (var change : unreadResults) {
             List<PhotonTrackedTarget> visionEst = change.getTargets();
             int iteration = 0;

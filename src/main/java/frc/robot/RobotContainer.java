@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
