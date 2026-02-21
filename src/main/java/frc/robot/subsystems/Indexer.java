@@ -34,26 +34,6 @@ import frc.robot.Constants;
 
 public class Indexer extends SubsystemBase {
 
-    private class AutoIndexer extends Command {
-        private final BooleanSupplier enabled;
-        public AutoIndexer(BooleanSupplier enabled) {
-            this.enabled = enabled;
-
-        }
-        @Override
-        public void execute(){
-            if (enabled.getAsBoolean()) {
-                setVoltage(Constants.indexerFeedVolt);
-            }else{
-                setVoltage(Volts.zero());
-            }
-        }
-        @Override
-        public void end(boolean interrupted){
-            setVoltage(Volts.zero());
-        }
-    }
-
     // Motor
     private final TalonFX motor;
 
@@ -240,16 +220,24 @@ public class Indexer extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
-    public Command runShooterFeed() {
+    public Command runShooterFeedCmd() {
         return setVoltageCmd(Constants.indexerFeedVolt);
     }
 
-    public Command stopShooterFeed() {
+    public Command stopShooterFeedCmd() {
         return setVoltageCmd(Volts.zero());
     }
 
-    public Command autoIndex(BooleanSupplier enabled){
-        return new AutoIndexer(enabled);
+
+    public Command autoIndexCmd(BooleanSupplier enabled){
+        return this.runEnd(() -> {
+            if (enabled.getAsBoolean()) {
+                setVoltage(Constants.indexerFeedVolt);
+            }else{
+                setVoltage(Volts.zero());
+            }
+        }, 
+        () -> setVoltage(Volts.zero()));
     }
 
     /**

@@ -9,8 +9,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;

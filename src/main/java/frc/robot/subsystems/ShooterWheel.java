@@ -7,8 +7,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Map;
 import java.util.function.Supplier;
+import java.util.zip.ZipError;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import com.ctre.phoenix6.CANBus;
@@ -16,6 +16,7 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -37,6 +38,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -80,6 +82,7 @@ public class ShooterWheel extends SubsystemBase {
     private final MotionMagicVelocityTorqueCurrentFOC torqueCtrl = new MotionMagicVelocityTorqueCurrentFOC(0)
             .withAcceleration(Constants.shooterMaxAccel)
             .withSlot(1);
+    private final DutyCycleOut dutyCycleCtrl = new DutyCycleOut(0).withEnableFOC(true);
 
     private final TorqueCurrentFOC currentCtrl = new TorqueCurrentFOC(0);
 
@@ -238,7 +241,7 @@ public class ShooterWheel extends SubsystemBase {
      * Checks if the current velocity is within tolerance of the set point
      * 
      * @param tol measurement tolerance
-     * @return true if in velocity control mode and within tolerance of the target.
+     * @return true if in torque control mode and within tolerance of the target.
      *         False otherwise
      */
     public boolean atVelocity(AngularVelocity tol) {
@@ -256,11 +259,17 @@ public class ShooterWheel extends SubsystemBase {
         SmartDashboard.putBoolean("Shot isTorqueCtrl", isTorqueCtrl);
         SmartDashboard.putBoolean("Shot isNearVel", isNearVel);
 
-        return motorLeader.getAppliedControl() == torqueCtrl &&
-                MathUtil.isNear(
-                        torqueCtrl.Velocity,
-                        getVelocity().in(RotationsPerSecond),
-                        tol.in(RotationsPerSecond));
+        return isTorqueCtrl && isNearVel;
+    }
+
+    /**
+     * 
+     * @param floorThreshold The maximum angular velocity of the shooter threhold
+     * @param ceilingThreshold The minimum angular velocity of the shooter threhold
+     * @return returns true if shooter velocity is greater than floor and less than ceiling
+     */
+    public boolean atVelocity(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+        return getVelocity().gt(floorThreshold) && ceilingThreshold.gt(getVelocity());
     }
 
     /**
@@ -270,6 +279,15 @@ public class ShooterWheel extends SubsystemBase {
      */
     public void setVoltage(Voltage volts) {
         motorLeader.setControl(voltCtrl.withOutput(volts));
+    }
+
+    /**
+     * Sets the motor to a duty cycle output.
+     * Useful for trying to get an output based on the possible max voltage output (battery wise)
+     * @param output
+     */
+    public void setDutyCyle(double output){
+        motorLeader.setControl(dutyCycleCtrl.withOutput(output));
     }
 
     /**
@@ -362,6 +380,22 @@ public class ShooterWheel extends SubsystemBase {
     public Command hubShotCmd() {
         return setTorqueVelocityCmd(this::calcHubShotSpeed);
     }
+
+    public Command hubPhaseShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+        return this.runEnd(
+            () -> {
+                AngularVelocity curVel = getVelocity();
+                if (floorThreshold.gt(curVel)){
+                    setDutyCyle(1);;
+                } else if(curVel.gt(ceilingThreshold)){
+                    setVoltage(Volts.zero());
+                } else{
+                    setTorqueCurrentVel(targetVel.get());
+                }
+            },
+            () -> setVoltage(Volts.zero()));
+    }
+
 
     /**
      * Create a Quasistatic SysId command

@@ -77,7 +77,7 @@ public class ShooterManagement {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 //shooterHood.hubShotCmd(),
-                indexer.autoIndex(this:: isShooterReady));
+                indexer.autoIndexCmd(this:: isShooterReady));
     }
 
     /**
@@ -96,10 +96,8 @@ public class ShooterManagement {
                 shooterWheel.hubShotCmd(),
                 shooterHood.hubShotCmd(),
                 drivetrain.lookAtHubCmd(xVel, yVel, Constants.shooterOrientation),
-                Commands.either(
-                        indexer.setVoltageCmd(Constants.indexerFeedVolt),
-                        indexer.setVoltageCmd(Volts.zero()),
-                        () -> isShooterReady() && isRobotAligned()));
+                indexer.autoIndexCmd(() -> isShooterReady() && isRobotAligned())
+            );
     }
 
     public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){
@@ -111,6 +109,13 @@ public class ShooterManagement {
         );
     }
 
+    public Command phaseShotIndexerCtrlCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+        return Commands.parallel(
+            shooterWheel.hubPhaseShotCmd(targetVel, floorThreshold, ceilingThreshold),
+            indexer.autoIndexCmd(() -> isShooterReady(floorThreshold, ceilingThreshold))
+        );
+    }
+
     /**
      * Checks if the shooter is ready to shoot
      * 
@@ -119,6 +124,10 @@ public class ShooterManagement {
     private boolean isShooterReady() {
         return shooterWheel.atVelocity(Constants.shooterWheelTol);
         //&& shooterHood.atPosition(Constants.shooterHoodTol);
+    }
+
+    private boolean isShooterReady(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+        return shooterWheel.atVelocity(floorThreshold, ceilingThreshold);
     }
 
     /**
