@@ -67,6 +67,9 @@ public class FieldLayout {
 
     public static final Translation2d blueTowerCenterFront = new Translation2d(blueTowerFront, blueTowerYOffset);
     public static final Translation2d redTowerCenterFront = new Translation2d(redTowerFront, redTowerYOffset);
+
+    //Trench Dimensions
+    public static final Translation2d blueTrenchRight = new Translation2d(Meters.of(4.6228), Meters.of(0.650843));
     /**
      * Checks if the current alliance is red.
      * 

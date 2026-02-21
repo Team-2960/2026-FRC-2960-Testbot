@@ -218,16 +218,16 @@ public class AprilTagPipeline extends SubsystemBase {
      * Updates Shuffleboard
      */
     private void updateUI() {
-        sb_PoseX.setDouble(last_pose.getX());
-        sb_PoseY.setDouble(last_pose.getY());
-        sb_PoseR.setDouble(last_pose.getRotation().getDegrees());
-        sb_lastTimestamp.setDouble(last_timestamp);
-        sb_lastUpdatePeriod.setDouble(Timer.getFPGATimestamp() - last_timestamp);
-        sb_aprilTagSeen.setBoolean(aprilTagSeen);
+        // sb_PoseX.setDouble(last_pose.getX());
+        // sb_PoseY.setDouble(last_pose.getY());
+        // sb_PoseR.setDouble(last_pose.getRotation().getDegrees());
+        // sb_lastTimestamp.setDouble(last_timestamp);
+        // sb_lastUpdatePeriod.setDouble(Timer.getFPGATimestamp() - last_timestamp);
+        // sb_aprilTagSeen.setBoolean(aprilTagSeen);
 
         //Advantage Scope
-        as_aprilTags.set(aprilTagList);
-        as_cameraPose.set(getRobotRelativeCamPos());
-        as_estimatedCameraPose.set(last_pose);
+        // as_aprilTags.set(aprilTagList);
+        // as_cameraPose.set(getRobotRelativeCamPos());
+        // as_estimatedCameraPose.set(last_pose);
     }
 }

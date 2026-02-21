@@ -120,4 +120,7 @@ public class Constants {
         .2
     );
 
+
+    //Distance Constants
+    public static final Distance maxRobotTrenchDistance = Meters.of(2);
 }

@@ -20,7 +20,7 @@ public class FieldCentricGoToPoint implements SwerveRequest {
      * The desired velocity to travel along the circle created around the orbital point using the radius.
      * The travel velocity is eventually split into an X and Y Velocity to feed into the FieldCentric Request.
      */
-    public double TravelVelocity = 0;
+    public double MaxVelocity = 0;
 
     /**
      * The target point for the robot to move to.
@@ -60,7 +60,8 @@ public class FieldCentricGoToPoint implements SwerveRequest {
     public PhoenixPIDController HeadingController = new PhoenixPIDController(0, 0, 0);
 
     private final FieldCentricFacingAngle m_fieldCentricFacingAngle = new FieldCentricFacingAngle();
-        public static boolean isRedAlliance() {
+    
+    public static boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
         return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
     }
@@ -90,9 +91,9 @@ public class FieldCentricGoToPoint implements SwerveRequest {
             }
             
             
-            // Limit to TravelVelocity
-            if (Math.abs(translationMag) > TravelVelocity) {
-                translationMag = Math.copySign(TravelVelocity, translationMag);
+            //Limit to MaxVelocity
+            if (Math.abs(translationMag) > MaxVelocity && MaxVelocity > 0) {
+                translationMag = Math.copySign(MaxVelocity, translationMag);
             }
 
             // Convert distance vector into a unit vector and multiply by calculated velocity
@@ -131,13 +132,13 @@ public class FieldCentricGoToPoint implements SwerveRequest {
         return this;
     }
 
-    public FieldCentricGoToPoint withTravelVelocity(double velocity) {
-        this.TravelVelocity = velocity;
+    public FieldCentricGoToPoint withMaxVelocity(double velocity) {
+        this.MaxVelocity = velocity;
         return this;
     }
 
-    public FieldCentricGoToPoint withTravelVelocity(LinearVelocity velocity) {
-        this.TravelVelocity = velocity.in(MetersPerSecond);
+    public FieldCentricGoToPoint withMaxVelocity(LinearVelocity velocity) {
+        this.MaxVelocity = velocity.in(MetersPerSecond);
         return this;
     }
 

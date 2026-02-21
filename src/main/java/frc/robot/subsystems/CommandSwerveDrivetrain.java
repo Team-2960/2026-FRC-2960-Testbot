@@ -30,12 +30,15 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -51,9 +54,11 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
+import frc.robot.Util.GeomUtil;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -104,16 +109,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .withHeadingPID(15, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
-    private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint();
-    
+    private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
+        .withHeadingPID(15, 0, 0)
+        .withTranslationPID(3, 0, 0);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
         .withHeadingPID(15, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
+    private final FieldCentricXAxisAlign xAxisAlignRequest = new FieldCentricXAxisAlign()
+        .withDriveRequestType(DriveRequestType.Velocity)
+        .withHeadingPID(15, 0, 0)
+        .withXAxisCorrectionPID(4, 0, 0);
+
     private final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
+    
 
     // Pathplanner
     @SuppressWarnings("unused")
@@ -370,33 +382,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineRotation.dynamic(direction);
     }
 
-    @Override
-    public void periodic() {
-        /*
-         * Periodically try to apply the operator perspective.
-         * If we haven't applied the operator perspective before, then we should apply
-         * it regardless of DS state.
-         * This allows us to correct the perspective in case the robot code restarts
-         * mid-match.
-         * Otherwise, only check and apply the operator perspective if the DS is
-         * disabled.
-         * This ensures driving behavior doesn't ch\][ange until an explicit disable event
-         * occurs during testing.
-         */
-        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-            DriverStation.getAlliance().ifPresent(allianceColor -> {
-                setOperatorPerspectiveForward(
-                        allianceColor == Alliance.Red
-                                ? kRedAlliancePerspectiveRotation
-                                : kBlueAlliancePerspectiveRotation);
-                m_hasAppliedOperatorPerspective = true;
-            });
-        }
-
-        SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
-        SmartDashboard.putNumber("Distance From Hub", FieldLayout.getHubDist(getPose2d().getTranslation()).in(Meters));
-    }
-
+    
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
@@ -656,9 +642,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset){
         return applyRequest(() -> goToRequest
             .withTargetPoint(FieldLayout.getTowerCenter().plus(PosOffset))
-            .withHeadingPID(15, 0, 0)
-            .withTranslationPID(5, 0, 0)
-            .withTravelVelocity(6)
             .withRotationalOffset(offset)
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
@@ -675,6 +658,35 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }
+
+    public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
+        return applyRequest(() -> xAxisAlignRequest
+            .withTravelVelocity(travelVelX.get())
+            .withTargetDirection(targetRotation)
+            .withXAxisCoordinate(coordinate)
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
+    public Command trenchPathAlignCmd(Translation2d targetPose){
+        return applyRequest(() -> goToRequest.withTargetPoint(calcTrenchPoint(GeomUtil.toPose2d(targetPose))));
+    }
+
+    public Translation2d calcTrenchPoint(Pose2d targetPoint){
+        double maxDistance = Constants.maxRobotTrenchDistance.in(Meters);
+        var offset = targetPoint.minus(getPose2d());
+        double xDistance = Math.abs(offset.getX());
+        double yDistance = Math.abs(offset.getY());
+        double testValue = 3;
+
+        double shiftX = MathUtil.clamp((yDistance / (testValue * 2)) + ((xDistance - 0.3) / (testValue * 3)), 0, 1);
+        double shiftY = MathUtil.clamp(yDistance/testValue, 0, 1);
+
+        Pose2d shiftedPose = targetPoint.transformBy(GeomUtil.toTransform2d(-Math.copySign(shiftX * maxDistance, offset.getX()), -Math.copySign(shiftY * maxDistance * 0.8, offset.getY())));
+        
+        return shiftedPose.getTranslation();
+    }
+
 
     /**
      * Crosses the swerve modules in an X pattern
@@ -698,4 +710,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public String getCommandString() {
         return this.getCurrentCommand() == null ? "null" : this.getCurrentCommand().getName();
     }
+    
+    @Override
+    public void periodic() {
+        /*
+         * Periodically try to apply the operator perspective.
+         * If we haven't applied the operator perspective before, then we should apply
+         * it regardless of DS state.
+         * This allows us to correct the perspective in case the robot code restarts
+         * mid-match.
+         * Otherwise, only check and apply the operator perspective if the DS is
+         * disabled.
+         * This ensures driving behavior doesn't ch\][ange until an explicit disable event
+         * occurs during testing.
+         */
+        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+            DriverStation.getAlliance().ifPresent(allianceColor -> {
+                setOperatorPerspectiveForward(
+                        allianceColor == Alliance.Red
+                                ? kRedAlliancePerspectiveRotation
+                                : kBlueAlliancePerspectiveRotation);
+                m_hasAppliedOperatorPerspective = true;
+            });
+        }
+
+        // SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
+        // SmartDashboard.putNumber("Distance From Hub", FieldLayout.getHubDist(getPose2d().getTranslation()).in(Meters));
+
+    }
+
 }

@@ -265,7 +265,7 @@ public class Indexer extends SubsystemBase {
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        SmartDashboard.putNumber("Indexer RPM", getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putNumber("Indexer RPM", getVelocity().in(Rotations.per(Minute)));
     }
 
     @AutoLogOutput

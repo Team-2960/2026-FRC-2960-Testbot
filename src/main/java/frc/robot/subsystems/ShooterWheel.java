@@ -245,9 +245,9 @@ public class ShooterWheel extends SubsystemBase {
      *         False otherwise
      */
     public boolean atVelocity(AngularVelocity tol) {
-        SmartDashboard.putNumber("Shot Tolerance (RPS)", tol.in(RotationsPerSecond));
-        SmartDashboard.putNumber("Shot Velocity (RPS)", getVelocity().in(RotationsPerSecond));
-        SmartDashboard.putNumber("Shot Target (RPS)", torqueCtrl.Velocity);
+        // SmartDashboard.putNumber("Shot Tolerance (RPS)", tol.in(RotationsPerSecond));
+        // SmartDashboard.putNumber("Shot Velocity (RPS)", getVelocity().in(RotationsPerSecond));
+        // SmartDashboard.putNumber("Shot Target (RPS)", torqueCtrl.Velocity);
 
         boolean isNearVel = MathUtil.isNear(
                         torqueCtrl.Velocity,
@@ -256,8 +256,8 @@ public class ShooterWheel extends SubsystemBase {
 
         boolean isTorqueCtrl = motorLeader.getAppliedControl() == torqueCtrl;
 
-        SmartDashboard.putBoolean("Shot isTorqueCtrl", isTorqueCtrl);
-        SmartDashboard.putBoolean("Shot isNearVel", isNearVel);
+        // SmartDashboard.putBoolean("Shot isTorqueCtrl", isTorqueCtrl);
+        // SmartDashboard.putBoolean("Shot isNearVel", isNearVel);
 
         return isTorqueCtrl && isNearVel;
     }
@@ -430,7 +430,7 @@ public class ShooterWheel extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
 
         if (DriverStation.isEnabled()) {
             orchestra.stop();

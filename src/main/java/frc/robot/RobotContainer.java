@@ -87,20 +87,21 @@ public class RobotContainer {
     // Triggers
     private Trigger testMode = new Trigger(DriverStation::isTest);
 
+
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftY(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftY(), 0.02));
     private Supplier<LinearVelocity> fullYVelCtrl = () -> yVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getLeftX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftX(), 0.02));
     private Supplier<AngularVelocity> fullRVelCtrl = () -> rVel.mut_replace(Constants.maxAngVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getRightX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getRightX(), 0.02));
 
     private Supplier<LinearVelocity> slowXVelCtrl = () -> xVel.mut_replace(Constants.slowdownLinVel)
-            .mut_times(-driverCtrl.getLeftY());
+            .mut_times(-driverCtrl.getHID().getLeftY());
     private Supplier<LinearVelocity> slowYVelCtrl = () -> yVel.mut_replace(Constants.slowdownLinVel)
-            .mut_times(-driverCtrl.getLeftX());
+            .mut_times(-driverCtrl.getHID().getLeftX());
     private Supplier<AngularVelocity> slowRVelCtrl = () -> rVel.mut_replace(Constants.slowdownAngVel)
-            .mut_times(-driverCtrl.getRightX());
+            .mut_times(-driverCtrl.getHID().getRightX());
 
     // Test Command Lists
     private final CommandSelector drivetrainTestCmds = new CommandSelector()
@@ -207,6 +208,14 @@ public class RobotContainer {
         driverCtrl.x().whileTrue(
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
                         Rotation2d.fromDegrees(90)));
+
+        driverCtrl.y().whileTrue(
+                drivetrain.trenchAlignCmd(fullXVelCtrl, Rotation2d.kZero, FieldLayout.blueTrenchRight)
+        );
+
+        // driverCtrl.y().whileTrue(
+        //         drivetrain.trenchPathAlignCmd(FieldLayout.blueTrenchRight)
+        // );
 
         driverCtrl.leftTrigger(.1).whileTrue(
                 drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0),new Translation2d(Inches.zero() ,Inches.of(-40)))

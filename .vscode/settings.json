@@ -63,5 +63,6 @@
     "canivore",
     "Deadband",
     "teleop"
-]
+],
+"wpilib.selectDefaultSimulateExtension": true
 }

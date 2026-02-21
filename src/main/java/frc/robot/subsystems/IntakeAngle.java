@@ -198,8 +198,8 @@ public class IntakeAngle extends SubsystemBase {
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
-        SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
+        // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
     }
 
     @AutoLogOutput
