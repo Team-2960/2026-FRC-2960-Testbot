@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,6 +46,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.maxLinVel.in(MetersPerSecond));
 
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
+    private final XboxController driverHIDCtrl = driverCtrl.getHID();
 
     @SuppressWarnings("unused")
     private final CommandXboxController operatorCtrl = new CommandXboxController(1);
@@ -90,18 +92,18 @@ public class RobotContainer {
 
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftY(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverHIDCtrl.getLeftY(), 0.02));
     private Supplier<LinearVelocity> fullYVelCtrl = () -> yVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverHIDCtrl.getLeftX(), 0.02));
     private Supplier<AngularVelocity> fullRVelCtrl = () -> rVel.mut_replace(Constants.maxAngVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getRightX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverHIDCtrl.getRightX(), 0.02));
 
     private Supplier<LinearVelocity> slowXVelCtrl = () -> xVel.mut_replace(Constants.slowdownLinVel)
-            .mut_times(-driverCtrl.getHID().getLeftY());
+            .mut_times(-driverHIDCtrl.getLeftY());
     private Supplier<LinearVelocity> slowYVelCtrl = () -> yVel.mut_replace(Constants.slowdownLinVel)
-            .mut_times(-driverCtrl.getHID().getLeftX());
+            .mut_times(-driverHIDCtrl.getLeftX());
     private Supplier<AngularVelocity> slowRVelCtrl = () -> rVel.mut_replace(Constants.slowdownAngVel)
-            .mut_times(-driverCtrl.getHID().getRightX());
+            .mut_times(-driverHIDCtrl.getRightX());
 
     // Test Command Lists
     private final CommandSelector drivetrainTestCmds = new CommandSelector()
@@ -144,6 +146,7 @@ public class RobotContainer {
 
         // Initialize drivetrain telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
+        DriverStation.silenceJoystickConnectionWarning(true);
 
     }
 
